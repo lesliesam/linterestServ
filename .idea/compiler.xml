@@ -23,10 +23,12 @@
         <outputRelativeToContentRoot value="true" />
         <processorPath useClasspath="true" />
         <module name="Linterest" />
+        <module name="linterest" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
       <module name="Linterest" target="1.5" />
+      <module name="linterest" target="1.5" />
     </bytecodeTargetLevel>
   </component>
 </project>
