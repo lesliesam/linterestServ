@@ -4,7 +4,7 @@
     "http://www.hibernate.org/dtd/hibernate-configuration-3.0.dtd">
 <hibernate-configuration>
   <session-factory>
-    <property name="connection.url">jdbc:mysql://120.55.87.231:3306/Linterest</property>
+    <property name="connection.url">jdbc:mysql://120.55.87.231:3306/linterest</property>
     <property name="connection.driver_class">com.mysql.jdbc.Driver</property>
     <property name="hibernate.connection.username">root</property>
     <property name="hibernate.connection.password">L0v3p0g0</property>
@@ -17,6 +17,25 @@
     <property name="hbm2ddl.auto">validate</property>
 
     <mapping class="com.linterest.dto.UserEntity"/>
+    <mapping class="com.linterest.dto.ArrangementEntity"/>
+    <mapping class="com.linterest.dto.ArrangementDiscussionEntity"/>
+    <mapping class="com.linterest.dto.ArrangementGuestEntity"/>
+    <mapping class="com.linterest.dto.ArrangementStatusEntity"/>
+    <mapping class="com.linterest.dto.CouponEntity"/>
+    <mapping class="com.linterest.dto.CouponTypeEntity"/>
+    <mapping class="com.linterest.dto.DishEntity"/>
+    <mapping class="com.linterest.dto.HobbyEntity"/>
+    <mapping class="com.linterest.dto.MenuEntity"/>
+    <mapping class="com.linterest.dto.MenuDishEntity"/>
+    <mapping class="com.linterest.dto.OrderTypeEntity"/>
+    <mapping class="com.linterest.dto.PersonalityEntity"/>
+    <mapping class="com.linterest.dto.UserArrangementLikeEntity"/>
+    <mapping class="com.linterest.dto.UserCouponEntity"/>
+    <mapping class="com.linterest.dto.UserCouponStatusEntity"/>
+    <mapping class="com.linterest.dto.UserHobbyEntity"/>
+    <mapping class="com.linterest.dto.UserOrderEntity"/>
+    <mapping class="com.linterest.dto.UserPersonalityEntity"/>
+    <mapping class="com.linterest.dto.UserScoreEntity"/>
 
   </session-factory>
 </hibernate-configuration>

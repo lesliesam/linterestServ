@@ -1,6 +1,9 @@
 package com.linterest.dto;
 
+import org.hibernate.annotations.Type;
+
 import javax.persistence.*;
+import java.sql.Timestamp;
 
 /**
  * @author <a href="mailto:lesliesam@hotmail.com"> Sam Yu </a>
@@ -11,7 +14,15 @@ public class UserEntity {
     private int id;
     private String userName;
     private String password;
-    private Integer phoneNum;
+    private String phoneNum;
+    private boolean isHost;
+    private String gender;
+    private Timestamp createTime;
+    private Timestamp lastLogin;
+    private String city;
+    private Float latitude;
+    private Float longitude;
+    private String shareCode;
 
     @Id
     @Column(name = "id")
@@ -45,11 +56,11 @@ public class UserEntity {
 
     @Basic
     @Column(name = "phone_num")
-    public Integer getPhoneNum() {
+    public String getPhoneNum() {
         return phoneNum;
     }
 
-    public void setPhoneNum(Integer phoneNum) {
+    public void setPhoneNum(String phoneNum) {
         this.phoneNum = phoneNum;
     }
 
@@ -75,5 +86,86 @@ public class UserEntity {
         result = 31 * result + (password != null ? password.hashCode() : 0);
         result = 31 * result + (phoneNum != null ? phoneNum.hashCode() : 0);
         return result;
+    }
+
+    @Basic
+    @Column(name = "is_host", columnDefinition = "BIT", length = 1)
+    @Type(type = "org.hibernate.type.NumericBooleanType")
+    public boolean getIsHost() {
+        return isHost;
+    }
+
+    public void setIsHost(boolean isHost) {
+        this.isHost = isHost;
+    }
+
+    @Basic
+    @Column(name = "gender")
+    public String getGender() {
+        return gender;
+    }
+
+    public void setGender(String gender) {
+        this.gender = gender;
+    }
+
+    @Basic
+    @Column(name = "create_time")
+    public Timestamp getCreateTime() {
+        return createTime;
+    }
+
+    public void setCreateTime(Timestamp createTime) {
+        this.createTime = createTime;
+    }
+
+    @Basic
+    @Column(name = "last_login")
+    public Timestamp getLastLogin() {
+        return lastLogin;
+    }
+
+    public void setLastLogin(Timestamp lastLogin) {
+        this.lastLogin = lastLogin;
+    }
+
+    @Basic
+    @Column(name = "city")
+    public String getCity() {
+        return city;
+    }
+
+    public void setCity(String city) {
+        this.city = city;
+    }
+
+    @Basic
+    @Column(name = "latitude")
+    public Float getLatitude() {
+        return latitude;
+    }
+
+    public void setLatitude(Float latitude) {
+        this.latitude = latitude;
+    }
+
+    @Basic
+    @Column(name = "longitude")
+    public Float getLongitude() {
+        return longitude;
+    }
+
+    public void setLongitude(Float longitude) {
+        this.longitude = longitude;
+    }
+
+    @Basic
+    @Column(name = "share_code")
+    public String getShareCode() {
+        return shareCode;
+    }
+
+    public void setShareCode(String shareCode) {
+        this.shareCode = shareCode;
     }
 }
