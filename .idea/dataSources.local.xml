@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="dataSourceStorageLocal">
-    <data-source name="MySQL - linterest@120.55.87.231" uuid="9d4b5b5d-c821-4357-986f-1f6bcba2a34b">
+    <data-source name="MySQL - linterest@120.55.87.231" uuid="d4565e0c-fac7-4b8d-bbd3-7d019404c49b">
       <secret-storage>master_key</secret-storage>
       <user-name>root</user-name>
-      <schema-pattern>Linterest.*</schema-pattern>
-      <default-schemas>Linterest.*</default-schemas>
+      <schema-pattern>linterest.*</schema-pattern>
+      <default-schemas>linterest.*</default-schemas>
     </data-source>
   </component>
 </project>

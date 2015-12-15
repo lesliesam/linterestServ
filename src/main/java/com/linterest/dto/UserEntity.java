@@ -9,7 +9,7 @@ import java.sql.Timestamp;
  * @author <a href="mailto:lesliesam@hotmail.com"> Sam Yu </a>
  */
 @Entity
-@Table(name = "user", schema = "", catalog = "Linterest")
+@Table(name = "user", schema = "", catalog = "linterest")
 public class UserEntity {
     private int id;
     private String userName;

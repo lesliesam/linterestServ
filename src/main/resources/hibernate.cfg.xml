@@ -6,8 +6,9 @@
   <session-factory>
     <property name="connection.url">jdbc:mysql://120.55.87.231:3306/linterest</property>
     <property name="connection.driver_class">com.mysql.jdbc.Driver</property>
-    <property name="hibernate.connection.username">root</property>
-    <property name="hibernate.connection.password">L0v3p0g0</property>
+    <property name="hibernate.connection.provider_class">com.linterest.HibernateUtil</property>
+    <property name="hibernate.connection.username">defdc829f36acd566415f5363a03049b</property>
+    <property name="hibernate.connection.password">5fd39cf5d1ebf70717ae28172e0b19af</property>
     <!-- DB schema will be updated if needed -->
     <!-- <property name="hbm2ddl.auto">update</property> -->
     <property name="connection.pool_size">1</property>
@@ -27,7 +28,6 @@
     <mapping class="com.linterest.dto.HobbyEntity"/>
     <mapping class="com.linterest.dto.MenuEntity"/>
     <mapping class="com.linterest.dto.MenuDishEntity"/>
-    <mapping class="com.linterest.dto.OrderTypeEntity"/>
     <mapping class="com.linterest.dto.PersonalityEntity"/>
     <mapping class="com.linterest.dto.UserArrangementLikeEntity"/>
     <mapping class="com.linterest.dto.UserCouponEntity"/>
@@ -36,6 +36,7 @@
     <mapping class="com.linterest.dto.UserOrderEntity"/>
     <mapping class="com.linterest.dto.UserPersonalityEntity"/>
     <mapping class="com.linterest.dto.UserScoreEntity"/>
+    <mapping class="com.linterest.dto.OrderStatusEntity"/>
 
   </session-factory>
 </hibernate-configuration>

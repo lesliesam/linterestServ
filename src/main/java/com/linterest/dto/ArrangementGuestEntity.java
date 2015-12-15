@@ -1,19 +1,19 @@
 package com.linterest.dto;
 
-import javax.persistence.Basic;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Table;
+import org.hibernate.annotations.Type;
+
+import javax.persistence.*;
 
 /**
  * @author <a href="mailto:lesliesam@hotmail.com"> Sam Yu </a>
  */
 @Entity
-@Table(name = "arrangementGuest", schema = "", catalog = "Linterest")
+@Table(name = "arrangementGuest", schema = "", catalog = "linterest")
 public class ArrangementGuestEntity {
     private int arrangementId;
     private int guestId;
-    private byte isCoreHost;
+    private boolean isCoreHost;
+    private int id;
 
     @Basic
     @Column(name = "arrangement_id")
@@ -36,12 +36,13 @@ public class ArrangementGuestEntity {
     }
 
     @Basic
-    @Column(name = "is_core_host")
-    public byte getIsCoreHost() {
+    @Column(name = "is_core_host", columnDefinition = "BIT", length = 1)
+    @Type(type = "org.hibernate.type.NumericBooleanType")
+    public boolean getIsCoreHost() {
         return isCoreHost;
     }
 
-    public void setIsCoreHost(byte isCoreHost) {
+    public void setIsCoreHost(boolean isCoreHost) {
         this.isCoreHost = isCoreHost;
     }
 
@@ -63,7 +64,16 @@ public class ArrangementGuestEntity {
     public int hashCode() {
         int result = arrangementId;
         result = 31 * result + guestId;
-        result = 31 * result + (int) isCoreHost;
         return result;
+    }
+
+    @Id
+    @Column(name = "id")
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
     }
 }

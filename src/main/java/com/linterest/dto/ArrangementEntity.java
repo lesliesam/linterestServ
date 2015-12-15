@@ -7,7 +7,7 @@ import java.sql.Timestamp;
  * @author <a href="mailto:lesliesam@hotmail.com"> Sam Yu </a>
  */
 @Entity
-@Table(name = "arrangement", schema = "", catalog = "Linterest")
+@Table(name = "arrangement", schema = "", catalog = "linterest")
 public class ArrangementEntity {
     private int id;
     private int hostId;

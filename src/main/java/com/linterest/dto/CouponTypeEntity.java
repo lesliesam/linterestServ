@@ -6,7 +6,7 @@ import javax.persistence.*;
  * @author <a href="mailto:lesliesam@hotmail.com"> Sam Yu </a>
  */
 @Entity
-@Table(name = "couponType", schema = "", catalog = "Linterest")
+@Table(name = "couponType", schema = "", catalog = "linterest")
 public class CouponTypeEntity {
     private int id;
     private String typeName;

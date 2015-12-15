@@ -1,136 +1,230 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <component name="dataSourceStorage">
-  <data-source name="MySQL - linterest@120.55.87.231" uuid="9d4b5b5d-c821-4357-986f-1f6bcba2a34b">
+  <data-source name="MySQL - linterest@120.55.87.231" uuid="d4565e0c-fac7-4b8d-bbd3-7d019404c49b">
     <database-info product="MySQL" version="5.5.46" jdbc-version="4.0" driver-name="MySQL Connector Java" driver-version="mysql-connector-java-5.1.35 ( Revision: 5fb9c5849535c13917c2cf9baaece6ef9693ef27 )">
       <extra-name-characters>#@</extra-name-characters>
       <identifier-quote-string>`</identifier-quote-string>
     </database-info>
     <case-sensitivity plain-identifiers="exact" quoted-identifiers="exact"/>
-    <schema name="" catalog="Linterest"/>
-    <table name="arrangement" schema="" catalog="Linterest" type="TABLE">
+    <schema name="" catalog="linterest"/>
+    <table name="arrangement" schema="" catalog="linterest" type="TABLE">
       <column name="id" sqlType="INT" precision="10" scale="0" nullable="false" jdbcType="4" autoIncrement="true"/>
       <column name="host_id" sqlType="INT" precision="10" scale="0" nullable="false" jdbcType="4"/>
       <column name="date" sqlType="DATETIME" precision="19" scale="0" nullable="true" jdbcType="93"/>
       <column name="location" sqlType="VARCHAR" precision="100" scale="0" nullable="true" jdbcType="12"/>
-      <column name="description" sqlType="VARCHAR" precision="1000" scale="0" nullable="true" jdbcType="12"/>
-      <column name="menu_id" sqlType="INT" precision="10" scale="0" nullable="true" jdbcType="4"/>
       <column name="city" sqlType="VARCHAR" precision="20" scale="0" nullable="true" jdbcType="12"/>
       <column name="latitude" sqlType="FLOAT" precision="12" scale="0" nullable="true" jdbcType="7"/>
       <column name="longitude" sqlType="FLOAT" precision="12" scale="0" nullable="true" jdbcType="7"/>
+      <column name="description" sqlType="VARCHAR" precision="1000" scale="0" nullable="true" jdbcType="12"/>
+      <column name="menu_id" sqlType="INT" precision="10" scale="0" nullable="true" jdbcType="4"/>
       <column name="price" sqlType="FLOAT" precision="12" scale="0" nullable="true" jdbcType="7"/>
       <column name="status_id" sqlType="INT" precision="10" scale="0" nullable="false" jdbcType="4"/>
       <primary-key name="PRIMARY" columns="id"/>
+      <foreign-key name="arrangement_host_id_fk" columns="host_id" ref-table="user" ref-schema="" ref-catalog="linterest" ref-columns="id" update-rule="3" delete-rule="3" deferrability="2"/>
+      <foreign-key name="arrangement_menu_id_fk" columns="menu_id" ref-table="menu" ref-schema="" ref-catalog="linterest" ref-columns="id" update-rule="3" delete-rule="3" deferrability="2"/>
+      <foreign-key name="arrangement_status_id_fk" columns="status_id" ref-table="arrangementStatus" ref-schema="" ref-catalog="linterest" ref-columns="id" update-rule="3" delete-rule="3" deferrability="2"/>
+      <exported-key name="discussion_arrangement_id_fk" table="arrangementDiscussion" schema="" catalog="linterest" columns="arrangement_id"/>
+      <exported-key name="arrangement_id_fk" table="arrangementGuest" schema="" catalog="linterest" columns="arrangement_id"/>
+      <exported-key name="arrangement_like_arrangement_id_fk" table="userArrangementLike" schema="" catalog="linterest" columns="arrangement_id"/>
+      <exported-key name="order_arrangement_id_fk" table="userOrder" schema="" catalog="linterest" columns="arrangement_id"/>
+      <exported-key name="score_arrangement_id_fk" table="userScore" schema="" catalog="linterest" columns="arrangement_id"/>
+      <index name="arrangement_host_id_fk" unique="false" columns="host_id"/>
+      <index name="arrangement_menu_id_fk" unique="false" columns="menu_id"/>
+      <index name="arrangement_status_id_fk" unique="false" columns="status_id"/>
     </table>
-    <table name="arrangementDiscussion" schema="" catalog="Linterest" type="TABLE">
+    <table name="arrangementDiscussion" schema="" catalog="linterest" type="TABLE">
+      <column name="id" sqlType="INT" precision="10" scale="0" nullable="false" jdbcType="4" autoIncrement="true"/>
       <column name="arrangement_id" sqlType="INT" precision="10" scale="0" nullable="false" jdbcType="4"/>
       <column name="poster_id" sqlType="INT" precision="10" scale="0" nullable="false" jdbcType="4"/>
       <column name="create_time" sqlType="DATETIME" precision="19" scale="0" nullable="false" jdbcType="93"/>
-      <column name="content" sqlType="VARCHAR" precision="500" scale="0" nullable="false" jdbcType="12" def="Jyc="/>
+      <column name="content" sqlType="VARCHAR" precision="500" scale="0" nullable="false" jdbcType="12"/>
+      <primary-key name="PRIMARY" columns="id"/>
+      <foreign-key name="discussion_arrangement_id_fk" columns="arrangement_id" ref-table="arrangement" ref-schema="" ref-catalog="linterest" ref-columns="id" update-rule="3" delete-rule="3" deferrability="2"/>
+      <foreign-key name="discussion_user_id_fk" columns="poster_id" ref-table="user" ref-schema="" ref-catalog="linterest" ref-columns="id" update-rule="3" delete-rule="3" deferrability="2"/>
+      <index name="discussion_arrangement_id_fk" unique="false" columns="arrangement_id"/>
+      <index name="discussion_user_id_fk" unique="false" columns="poster_id"/>
     </table>
-    <table name="arrangementGuest" schema="" catalog="Linterest" type="TABLE">
+    <table name="arrangementGuest" schema="" catalog="linterest" type="TABLE">
+      <column name="id" sqlType="INT" precision="10" scale="0" nullable="false" jdbcType="4" autoIncrement="true"/>
       <column name="arrangement_id" sqlType="INT" precision="10" scale="0" nullable="false" jdbcType="4"/>
       <column name="guest_id" sqlType="INT" precision="10" scale="0" nullable="false" jdbcType="4"/>
       <column name="is_core_host" sqlType="TINYINT" precision="3" scale="0" nullable="false" jdbcType="-6"/>
-    </table>
-    <table name="arrangementStatus" schema="" catalog="Linterest" type="TABLE">
-      <column name="id" sqlType="INT" precision="10" scale="0" nullable="false" jdbcType="4" autoIncrement="true"/>
-      <column name="name" sqlType="VARCHAR" precision="20" scale="0" nullable="false" jdbcType="12" def="Jyc="/>
       <primary-key name="PRIMARY" columns="id"/>
+      <foreign-key name="arrangement_guest_fk" columns="guest_id" ref-table="user" ref-schema="" ref-catalog="linterest" ref-columns="id" update-rule="3" delete-rule="3" deferrability="2"/>
+      <foreign-key name="arrangement_id_fk" columns="arrangement_id" ref-table="arrangement" ref-schema="" ref-catalog="linterest" ref-columns="id" update-rule="3" delete-rule="3" deferrability="2"/>
+      <index name="arrangement_guest_fk" unique="false" columns="guest_id"/>
+      <index name="arrangement_id_fk" unique="false" columns="arrangement_id"/>
     </table>
-    <table name="coupon" schema="" catalog="Linterest" type="TABLE">
+    <table name="arrangementStatus" schema="" catalog="linterest" type="TABLE">
+      <column name="id" sqlType="INT" precision="10" scale="0" nullable="false" jdbcType="4" autoIncrement="true"/>
+      <column name="name" sqlType="VARCHAR" precision="20" scale="0" nullable="false" jdbcType="12"/>
+      <primary-key name="PRIMARY" columns="id"/>
+      <exported-key name="arrangement_status_id_fk" table="arrangement" schema="" catalog="linterest" columns="status_id"/>
+    </table>
+    <table name="coupon" schema="" catalog="linterest" type="TABLE">
       <column name="id" sqlType="INT" precision="10" scale="0" nullable="false" jdbcType="4" autoIncrement="true"/>
       <column name="coupon_type" sqlType="INT" precision="10" scale="0" nullable="false" jdbcType="4"/>
       <column name="amount" sqlType="INT" precision="10" scale="0" nullable="false" jdbcType="4"/>
       <primary-key name="PRIMARY" columns="id"/>
+      <foreign-key name="coupon_type_id_fk" columns="coupon_type" ref-table="couponType" ref-schema="" ref-catalog="linterest" ref-columns="id" update-rule="3" delete-rule="3" deferrability="2"/>
+      <exported-key name="user_coupon_coupon_id_fk" table="userCoupon" schema="" catalog="linterest" columns="coupon_id"/>
+      <index name="coupon_type_id_fk" unique="false" columns="coupon_type"/>
     </table>
-    <table name="couponType" schema="" catalog="Linterest" type="TABLE">
+    <table name="couponType" schema="" catalog="linterest" type="TABLE">
       <column name="id" sqlType="INT" precision="10" scale="0" nullable="false" jdbcType="4" autoIncrement="true"/>
       <column name="type_name" sqlType="VARCHAR" precision="50" scale="0" nullable="true" jdbcType="12"/>
       <primary-key name="PRIMARY" columns="id"/>
+      <exported-key name="coupon_type_id_fk" table="coupon" schema="" catalog="linterest" columns="coupon_type"/>
     </table>
-    <table name="dish" schema="" catalog="Linterest" type="TABLE">
+    <table name="dish" schema="" catalog="linterest" type="TABLE">
       <column name="id" sqlType="INT" precision="10" scale="0" nullable="false" jdbcType="4" autoIncrement="true"/>
-      <column name="dish_name" sqlType="VARCHAR" precision="100" scale="0" nullable="false" jdbcType="12" def="Jyc="/>
-      <column name="dish_img_url" sqlType="VARCHAR" precision="200" scale="0" nullable="false" jdbcType="12" def="Jyc="/>
+      <column name="dish_name" sqlType="VARCHAR" precision="100" scale="0" nullable="false" jdbcType="12"/>
+      <column name="dish_img_url" sqlType="VARCHAR" precision="200" scale="0" nullable="false" jdbcType="12"/>
       <primary-key name="PRIMARY" columns="id"/>
+      <exported-key name="dish_id_fk" table="menuDish" schema="" catalog="linterest" columns="dish_id"/>
     </table>
-    <table name="hobby" schema="" catalog="Linterest" type="TABLE">
+    <table name="hobby" schema="" catalog="linterest" type="TABLE">
       <column name="id" sqlType="INT" precision="10" scale="0" nullable="false" jdbcType="4" autoIncrement="true"/>
-      <column name="hobby_name" sqlType="VARCHAR" precision="100" scale="0" nullable="false" jdbcType="12" def="Jyc="/>
+      <column name="hobby_name" sqlType="VARCHAR" precision="100" scale="0" nullable="false" jdbcType="12"/>
       <primary-key name="PRIMARY" columns="id"/>
+      <exported-key name="hobby_id_fk" table="userHobby" schema="" catalog="linterest" columns="hobby_id"/>
     </table>
-    <table name="menu" schema="" catalog="Linterest" type="TABLE">
+    <table name="menu" schema="" catalog="linterest" type="TABLE">
       <column name="id" sqlType="INT" precision="10" scale="0" nullable="false" jdbcType="4" autoIncrement="true"/>
       <column name="description" sqlType="VARCHAR" precision="1000" scale="0" nullable="true" jdbcType="12"/>
       <primary-key name="PRIMARY" columns="id"/>
+      <exported-key name="arrangement_menu_id_fk" table="arrangement" schema="" catalog="linterest" columns="menu_id"/>
+      <exported-key name="menu_id_fk" table="menuDish" schema="" catalog="linterest" columns="menu_id"/>
     </table>
-    <table name="menuDish" schema="" catalog="Linterest" type="TABLE">
+    <table name="menuDish" schema="" catalog="linterest" type="TABLE">
+      <column name="id" sqlType="INT" precision="10" scale="0" nullable="false" jdbcType="4" autoIncrement="true"/>
       <column name="menu_id" sqlType="INT" precision="10" scale="0" nullable="false" jdbcType="4"/>
       <column name="dish_id" sqlType="INT" precision="10" scale="0" nullable="false" jdbcType="4"/>
+      <primary-key name="PRIMARY" columns="id"/>
+      <foreign-key name="dish_id_fk" columns="dish_id" ref-table="dish" ref-schema="" ref-catalog="linterest" ref-columns="id" update-rule="3" delete-rule="3" deferrability="2"/>
+      <foreign-key name="menu_id_fk" columns="menu_id" ref-table="menu" ref-schema="" ref-catalog="linterest" ref-columns="id" update-rule="3" delete-rule="3" deferrability="2"/>
+      <index name="dish_id_fk" unique="false" columns="dish_id"/>
+      <index name="menu_id_fk" unique="false" columns="menu_id"/>
     </table>
-    <table name="orderType" schema="" catalog="Linterest" type="TABLE">
-      <column name="id" sqlType="INT" precision="10" scale="0" nullable="false" jdbcType="4"/>
+    <table name="orderStatus" schema="" catalog="linterest" type="TABLE">
+      <column name="id" sqlType="INT" precision="10" scale="0" nullable="false" jdbcType="4" autoIncrement="true"/>
       <column name="name" sqlType="VARCHAR" precision="20" scale="0" nullable="true" jdbcType="12"/>
       <primary-key name="PRIMARY" columns="id"/>
+      <exported-key name="order_status_id_fk" table="userOrder" schema="" catalog="linterest" columns="status_id"/>
     </table>
-    <table name="personality" schema="" catalog="Linterest" type="TABLE">
+    <table name="personality" schema="" catalog="linterest" type="TABLE">
       <column name="id" sqlType="INT" precision="10" scale="0" nullable="false" jdbcType="4" autoIncrement="true"/>
-      <column name="name" sqlType="VARCHAR" precision="100" scale="0" nullable="false" jdbcType="12" def="Jyc="/>
+      <column name="name" sqlType="VARCHAR" precision="100" scale="0" nullable="false" jdbcType="12"/>
       <primary-key name="PRIMARY" columns="id"/>
+      <exported-key name="personality_id_fk" table="userPersonality" schema="" catalog="linterest" columns="personality_id"/>
     </table>
-    <table name="user" schema="" catalog="Linterest" type="TABLE">
+    <table name="user" schema="" catalog="linterest" type="TABLE">
       <column name="id" sqlType="INT" precision="10" scale="0" nullable="false" jdbcType="4" autoIncrement="true"/>
-      <column name="user_name" sqlType="VARCHAR" precision="100" scale="0" nullable="false" jdbcType="12" def="Jyc="/>
-      <column name="password" sqlType="VARCHAR" precision="20" scale="0" nullable="false" jdbcType="12" def="Jyc="/>
-      <column name="phone_num" sqlType="VARCHAR" precision="20" scale="0" nullable="true" jdbcType="12"/>
+      <column name="user_name" sqlType="VARCHAR" precision="100" scale="0" nullable="false" jdbcType="12"/>
+      <column name="password" sqlType="VARCHAR" precision="20" scale="0" nullable="false" jdbcType="12"/>
+      <column name="phone_num" sqlType="VARCHAR" precision="20" scale="0" nullable="false" jdbcType="12"/>
+      <column name="gender" sqlType="VARCHAR" precision="10" scale="0" nullable="false" jdbcType="12"/>
       <column name="is_host" sqlType="TINYINT" precision="3" scale="0" nullable="true" jdbcType="-6"/>
-      <column name="gender" sqlType="VARCHAR" precision="10" scale="0" nullable="true" jdbcType="12"/>
-      <column name="create_time" sqlType="DATETIME" precision="19" scale="0" nullable="true" jdbcType="93"/>
-      <column name="last_login" sqlType="DATETIME" precision="19" scale="0" nullable="true" jdbcType="93"/>
+      <column name="create_time" sqlType="DATETIME" precision="19" scale="0" nullable="false" jdbcType="93"/>
+      <column name="last_login" sqlType="DATETIME" precision="19" scale="0" nullable="false" jdbcType="93"/>
       <column name="city" sqlType="VARCHAR" precision="20" scale="0" nullable="true" jdbcType="12"/>
       <column name="latitude" sqlType="FLOAT" precision="12" scale="0" nullable="true" jdbcType="7"/>
       <column name="longitude" sqlType="FLOAT" precision="12" scale="0" nullable="true" jdbcType="7"/>
       <column name="share_code" sqlType="VARCHAR" precision="20" scale="0" nullable="true" jdbcType="12"/>
       <primary-key name="PRIMARY" columns="id"/>
+      <exported-key name="arrangement_host_id_fk" table="arrangement" schema="" catalog="linterest" columns="host_id"/>
+      <exported-key name="discussion_user_id_fk" table="arrangementDiscussion" schema="" catalog="linterest" columns="poster_id"/>
+      <exported-key name="arrangement_guest_fk" table="arrangementGuest" schema="" catalog="linterest" columns="guest_id"/>
+      <exported-key name="arrangement_like_user_id_fk" table="userArrangementLike" schema="" catalog="linterest" columns="user_id"/>
+      <exported-key name="user_coupon_user_id_fk" table="userCoupon" schema="" catalog="linterest" columns="user_id"/>
+      <exported-key name="user_id_fk" table="userHobby" schema="" catalog="linterest" columns="user_id"/>
+      <exported-key name="order_user_id_fk" table="userOrder" schema="" catalog="linterest" columns="user_id"/>
+      <exported-key name="user_personality_id_fk" table="userPersonality" schema="" catalog="linterest" columns="user_id"/>
+      <exported-key name="score_scorer_id_fk" table="userScore" schema="" catalog="linterest" columns="scorer_id"/>
+      <exported-key name="score_user_id_fk" table="userScore" schema="" catalog="linterest" columns="user_id"/>
     </table>
-    <table name="userArrangementLike" schema="" catalog="Linterest" type="TABLE">
+    <table name="userArrangementLike" schema="" catalog="linterest" type="TABLE">
+      <column name="id" sqlType="INT" precision="10" scale="0" nullable="false" jdbcType="4" autoIncrement="true"/>
       <column name="user_id" sqlType="INT" precision="10" scale="0" nullable="false" jdbcType="4"/>
       <column name="arrangement_id" sqlType="INT" precision="10" scale="0" nullable="false" jdbcType="4"/>
       <column name="update_time" sqlType="TIMESTAMP" precision="19" scale="0" nullable="false" jdbcType="93" def="Q1VSUkVOVF9USU1FU1RBTVA=" version="true"/>
+      <primary-key name="PRIMARY" columns="id"/>
+      <foreign-key name="arrangement_like_arrangement_id_fk" columns="arrangement_id" ref-table="arrangement" ref-schema="" ref-catalog="linterest" ref-columns="id" update-rule="3" delete-rule="3" deferrability="2"/>
+      <foreign-key name="arrangement_like_user_id_fk" columns="user_id" ref-table="user" ref-schema="" ref-catalog="linterest" ref-columns="id" update-rule="3" delete-rule="3" deferrability="2"/>
+      <index name="arrangement_like_arrangement_id_fk" unique="false" columns="arrangement_id"/>
+      <index name="arrangement_like_user_id_fk" unique="false" columns="user_id"/>
     </table>
-    <table name="userCoupon" schema="" catalog="Linterest" type="TABLE">
+    <table name="userCoupon" schema="" catalog="linterest" type="TABLE">
+      <column name="id" sqlType="INT" precision="10" scale="0" nullable="false" jdbcType="4" autoIncrement="true"/>
       <column name="user_id" sqlType="INT" precision="10" scale="0" nullable="false" jdbcType="4"/>
       <column name="coupon_id" sqlType="INT" precision="10" scale="0" nullable="false" jdbcType="4"/>
       <column name="status_id" sqlType="INT" precision="10" scale="0" nullable="false" jdbcType="4"/>
-    </table>
-    <table name="userCouponStatus" schema="" catalog="Linterest" type="TABLE">
-      <column name="id" sqlType="INT" precision="10" scale="0" nullable="false" jdbcType="4" autoIncrement="true"/>
-      <column name="name" sqlType="VARCHAR" precision="20" scale="0" nullable="false" jdbcType="12" def="Jyc="/>
       <primary-key name="PRIMARY" columns="id"/>
+      <foreign-key name="user_coupon_coupon_id_fk" columns="coupon_id" ref-table="coupon" ref-schema="" ref-catalog="linterest" ref-columns="id" update-rule="3" delete-rule="3" deferrability="2"/>
+      <foreign-key name="user_coupon_status_id_fk" columns="status_id" ref-table="userCouponStatus" ref-schema="" ref-catalog="linterest" ref-columns="id" update-rule="3" delete-rule="3" deferrability="2"/>
+      <foreign-key name="user_coupon_user_id_fk" columns="user_id" ref-table="user" ref-schema="" ref-catalog="linterest" ref-columns="id" update-rule="3" delete-rule="3" deferrability="2"/>
+      <index name="user_coupon_coupon_id_fk" unique="false" columns="coupon_id"/>
+      <index name="user_coupon_status_id_fk" unique="false" columns="status_id"/>
+      <index name="user_coupon_user_id_fk" unique="false" columns="user_id"/>
     </table>
-    <table name="userHobby" schema="" catalog="Linterest" type="TABLE">
+    <table name="userCouponStatus" schema="" catalog="linterest" type="TABLE">
+      <column name="id" sqlType="INT" precision="10" scale="0" nullable="false" jdbcType="4" autoIncrement="true"/>
+      <column name="name" sqlType="VARCHAR" precision="20" scale="0" nullable="false" jdbcType="12"/>
+      <primary-key name="PRIMARY" columns="id"/>
+      <exported-key name="user_coupon_status_id_fk" table="userCoupon" schema="" catalog="linterest" columns="status_id"/>
+    </table>
+    <table name="userHobby" schema="" catalog="linterest" type="TABLE">
+      <column name="id" sqlType="INT" precision="10" scale="0" nullable="false" jdbcType="4" autoIncrement="true"/>
       <column name="user_id" sqlType="INT" precision="10" scale="0" nullable="false" jdbcType="4"/>
       <column name="hobby_id" sqlType="INT" precision="10" scale="0" nullable="false" jdbcType="4"/>
+      <primary-key name="PRIMARY" columns="id"/>
+      <foreign-key name="hobby_id_fk" columns="hobby_id" ref-table="hobby" ref-schema="" ref-catalog="linterest" ref-columns="id" update-rule="3" delete-rule="3" deferrability="2"/>
+      <foreign-key name="user_id_fk" columns="user_id" ref-table="user" ref-schema="" ref-catalog="linterest" ref-columns="id" update-rule="3" delete-rule="3" deferrability="2"/>
+      <index name="hobby_id_fk" unique="false" columns="hobby_id"/>
+      <index name="user_id_fk" unique="false" columns="user_id"/>
     </table>
-    <table name="userOrder" schema="" catalog="Linterest" type="TABLE">
+    <table name="userOrder" schema="" catalog="linterest" type="TABLE">
+      <column name="id" sqlType="INT" precision="10" scale="0" nullable="false" jdbcType="4" autoIncrement="true"/>
       <column name="user_id" sqlType="INT" precision="10" scale="0" nullable="false" jdbcType="4"/>
       <column name="arrangement_id" sqlType="INT" precision="10" scale="0" nullable="false" jdbcType="4"/>
       <column name="create_time" sqlType="DATETIME" precision="19" scale="0" nullable="false" jdbcType="93"/>
       <column name="pay_time" sqlType="DATETIME" precision="19" scale="0" nullable="false" jdbcType="93"/>
       <column name="type_id" sqlType="INT" precision="10" scale="0" nullable="false" jdbcType="4"/>
       <column name="payment_code" sqlType="VARCHAR" precision="100" scale="0" nullable="true" jdbcType="12"/>
+      <column name="status_id" sqlType="INT" precision="10" scale="0" nullable="false" jdbcType="4"/>
+      <primary-key name="PRIMARY" columns="id"/>
+      <foreign-key name="order_arrangement_id_fk" columns="arrangement_id" ref-table="arrangement" ref-schema="" ref-catalog="linterest" ref-columns="id" update-rule="3" delete-rule="3" deferrability="2"/>
+      <foreign-key name="order_status_id_fk" columns="status_id" ref-table="orderStatus" ref-schema="" ref-catalog="linterest" ref-columns="id" update-rule="3" delete-rule="3" deferrability="2"/>
+      <foreign-key name="order_user_id_fk" columns="user_id" ref-table="user" ref-schema="" ref-catalog="linterest" ref-columns="id" update-rule="3" delete-rule="3" deferrability="2"/>
+      <index name="order_arrangement_id_fk" unique="false" columns="arrangement_id"/>
+      <index name="order_status_id_fk" unique="false" columns="status_id"/>
+      <index name="order_user_id_fk" unique="false" columns="user_id"/>
     </table>
-    <table name="userPersonality" schema="" catalog="Linterest" type="TABLE">
+    <table name="userPersonality" schema="" catalog="linterest" type="TABLE">
+      <column name="id" sqlType="INT" precision="10" scale="0" nullable="false" jdbcType="4" autoIncrement="true"/>
       <column name="user_id" sqlType="INT" precision="10" scale="0" nullable="false" jdbcType="4"/>
       <column name="personality_id" sqlType="INT" precision="10" scale="0" nullable="false" jdbcType="4"/>
+      <primary-key name="PRIMARY" columns="id"/>
+      <foreign-key name="personality_id_fk" columns="personality_id" ref-table="personality" ref-schema="" ref-catalog="linterest" ref-columns="id" update-rule="3" delete-rule="3" deferrability="2"/>
+      <foreign-key name="user_personality_id_fk" columns="user_id" ref-table="user" ref-schema="" ref-catalog="linterest" ref-columns="id" update-rule="3" delete-rule="3" deferrability="2"/>
+      <index name="personality_id_fk" unique="false" columns="personality_id"/>
+      <index name="user_personality_id_fk" unique="false" columns="user_id"/>
     </table>
-    <table name="userScore" schema="" catalog="Linterest" type="TABLE">
+    <table name="userScore" schema="" catalog="linterest" type="TABLE">
+      <column name="id" sqlType="INT" precision="10" scale="0" nullable="false" jdbcType="4" autoIncrement="true"/>
       <column name="user_id" sqlType="INT" precision="10" scale="0" nullable="false" jdbcType="4"/>
       <column name="scorer_id" sqlType="INT" precision="10" scale="0" nullable="false" jdbcType="4"/>
       <column name="arrangement_id" sqlType="INT" precision="10" scale="0" nullable="false" jdbcType="4"/>
       <column name="score" sqlType="INT" precision="10" scale="0" nullable="true" jdbcType="4"/>
+      <column name="comments" sqlType="VARCHAR" precision="200" scale="0" nullable="true" jdbcType="12"/>
       <column name="score_time" sqlType="DATETIME" precision="19" scale="0" nullable="true" jdbcType="93"/>
-      <column name="comments" sqlType="VARCHAR" precision="500" scale="0" nullable="true" jdbcType="12"/>
+      <primary-key name="PRIMARY" columns="id"/>
+      <foreign-key name="score_arrangement_id_fk" columns="arrangement_id" ref-table="arrangement" ref-schema="" ref-catalog="linterest" ref-columns="id" update-rule="3" delete-rule="3" deferrability="2"/>
+      <foreign-key name="score_scorer_id_fk" columns="scorer_id" ref-table="user" ref-schema="" ref-catalog="linterest" ref-columns="id" update-rule="3" delete-rule="3" deferrability="2"/>
+      <foreign-key name="score_user_id_fk" columns="user_id" ref-table="user" ref-schema="" ref-catalog="linterest" ref-columns="id" update-rule="3" delete-rule="3" deferrability="2"/>
+      <index name="score_arrangement_id_fk" unique="false" columns="arrangement_id"/>
+      <index name="score_scorer_id_fk" unique="false" columns="scorer_id"/>
+      <index name="score_user_id_fk" unique="false" columns="user_id"/>
     </table>
   </data-source>
 </component>

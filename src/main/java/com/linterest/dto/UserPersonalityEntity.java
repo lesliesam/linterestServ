@@ -1,18 +1,16 @@
 package com.linterest.dto;
 
-import javax.persistence.Basic;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Table;
+import javax.persistence.*;
 
 /**
  * @author <a href="mailto:lesliesam@hotmail.com"> Sam Yu </a>
  */
 @Entity
-@Table(name = "userPersonality", schema = "", catalog = "Linterest")
+@Table(name = "userPersonality", schema = "", catalog = "linterest")
 public class UserPersonalityEntity {
     private int userId;
     private int personalityId;
+    private int id;
 
     @Basic
     @Column(name = "user_id")
@@ -52,5 +50,15 @@ public class UserPersonalityEntity {
         int result = userId;
         result = 31 * result + personalityId;
         return result;
+    }
+
+    @Id
+    @Column(name = "id")
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
     }
 }

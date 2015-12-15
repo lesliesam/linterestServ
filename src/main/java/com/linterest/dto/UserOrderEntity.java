@@ -1,16 +1,13 @@
 package com.linterest.dto;
 
-import javax.persistence.Basic;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Table;
+import javax.persistence.*;
 import java.sql.Timestamp;
 
 /**
  * @author <a href="mailto:lesliesam@hotmail.com"> Sam Yu </a>
  */
 @Entity
-@Table(name = "userOrder", schema = "", catalog = "Linterest")
+@Table(name = "userOrder", schema = "", catalog = "linterest")
 public class UserOrderEntity {
     private int userId;
     private int arrangementId;
@@ -18,6 +15,8 @@ public class UserOrderEntity {
     private Timestamp payTime;
     private int typeId;
     private String paymentCode;
+    private int id;
+    private int statusId;
 
     @Basic
     @Column(name = "user_id")
@@ -105,5 +104,25 @@ public class UserOrderEntity {
         result = 31 * result + typeId;
         result = 31 * result + (paymentCode != null ? paymentCode.hashCode() : 0);
         return result;
+    }
+
+    @Id
+    @Column(name = "id")
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    @Basic
+    @Column(name = "status_id")
+    public int getStatusId() {
+        return statusId;
+    }
+
+    public void setStatusId(int statusId) {
+        this.statusId = statusId;
     }
 }

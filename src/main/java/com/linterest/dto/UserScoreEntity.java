@@ -1,16 +1,13 @@
 package com.linterest.dto;
 
-import javax.persistence.Basic;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Table;
+import javax.persistence.*;
 import java.sql.Timestamp;
 
 /**
  * @author <a href="mailto:lesliesam@hotmail.com"> Sam Yu </a>
  */
 @Entity
-@Table(name = "userScore", schema = "", catalog = "Linterest")
+@Table(name = "userScore", schema = "", catalog = "linterest")
 public class UserScoreEntity {
     private int userId;
     private int scorerId;
@@ -18,6 +15,7 @@ public class UserScoreEntity {
     private Integer score;
     private Timestamp scoreTime;
     private String comments;
+    private int id;
 
     @Basic
     @Column(name = "user_id")
@@ -105,5 +103,15 @@ public class UserScoreEntity {
         result = 31 * result + (scoreTime != null ? scoreTime.hashCode() : 0);
         result = 31 * result + (comments != null ? comments.hashCode() : 0);
         return result;
+    }
+
+    @Id
+    @Column(name = "id")
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
     }
 }
