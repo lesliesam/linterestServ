@@ -5,6 +5,7 @@ import com.google.gson.GsonBuilder;
 import com.linterest.HibernateUtil;
 import com.linterest.dto.UserEntity;
 import com.linterest.error.ServerErrorPasswordMismatch;
+import io.swagger.annotations.Api;
 import org.hibernate.Query;
 import org.hibernate.Session;
 
@@ -17,6 +18,7 @@ import java.util.List;
 /**
  * @author <a href="mailto:lesliesam@hotmail.com"> Sam Yu </a>
  */
+@Api
 @Path("/user")
 public class UserService {
 
