@@ -1,64 +1,69 @@
 package com.linterest.api;
 
-import com.google.inject.name.Named;
-import com.google.sitebricks.At;
-import com.google.sitebricks.client.transport.Json;
-import com.google.sitebricks.headless.Reply;
-import com.google.sitebricks.headless.Request;
-import com.google.sitebricks.headless.Service;
-import com.google.sitebricks.http.Get;
-import com.google.sitebricks.http.Post;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.linterest.HibernateUtil;
 import com.linterest.dto.UserEntity;
+import com.linterest.error.ServerErrorPasswordMismatch;
 import org.hibernate.Query;
 import org.hibernate.Session;
 
+import javax.net.ssl.SSLEngineResult;
+import javax.ws.rs.*;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import java.util.Iterator;
 import java.util.List;
 
 /**
  * @author <a href="mailto:lesliesam@hotmail.com"> Sam Yu </a>
  */
-@At("/user") @Service
+@Path("/user")
 public class UserService {
 
     private static final String QUERY_USER = "from UserEntity";
 
-    @At("/all")
-    @Get
-    public Reply<?> getAllUser(Request request) {
+    @GET
+    @Path("/all")
+    @Produces(MediaType.APPLICATION_JSON)
+    public String getAllUser() {
+        Gson gson = new GsonBuilder().create();
         Session session = HibernateUtil.getSessionFactory().openSession();
         Query query = session.createQuery(QUERY_USER);
         List<UserEntity> list = query.list();
         session.close();
 
-        return Reply.with(list).as(Json.class);
+        return gson.toJson(list);
     }
 
-    @At("/:name")
-    @Get
-    public Reply<?> getUser(Request request, @Named("name") String name) {
+    @POST
+    @Path("/login")
+    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response login(@FormParam("userName") String userName, @FormParam("password") String password ) {
+        Gson gson = new GsonBuilder().create();
         Session session = HibernateUtil.getSessionFactory().openSession();
-        Query query = session.createQuery(QUERY_USER + " where userName = '" + name + "'");
+        Query query = session.createQuery(QUERY_USER + " where userName = '" + userName + "'");
         List<UserEntity> list = query.list();
         session.close();
 
-        return Reply.with(list).as(Json.class);
-    }
-
-    @Post
-    public Reply<?> addUser(Request request) {
-        try {
-            UserEntity user = request.read(UserEntity.class).as(Json.class);
-
-            Session session = HibernateUtil.getSessionFactory().openSession();
-            session.beginTransaction();
-            session.persist(user);
-            session.getTransaction().commit();
-            session.close();
-        } catch (Exception e) {
-            return Reply.saying().error();
+        UserEntity user = null;
+        boolean passwordMatch = false;
+        Iterator<UserEntity> it = list.iterator();
+        while (it.hasNext()) {
+            user = it.next();
+            if (user.getPassword().equals(password)) {
+                passwordMatch = true;
+            }
+            // Only check the first.
+            break;
         }
 
-        return Reply.saying().ok();
+        if (passwordMatch && user != null) {
+            return Response.status(Response.Status.OK).entity(gson.toJson(user)).build();
+        } else {
+            return Response.status(Response.Status.FORBIDDEN).entity(gson.toJson(new ServerErrorPasswordMismatch())).build();
+        }
     }
 }
