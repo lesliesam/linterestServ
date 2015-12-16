@@ -8,9 +8,7 @@ import com.linterest.error.ServerErrorPasswordMismatch;
 import org.hibernate.Query;
 import org.hibernate.Session;
 
-import javax.net.ssl.SSLEngineResult;
 import javax.ws.rs.*;
-import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.Iterator;
