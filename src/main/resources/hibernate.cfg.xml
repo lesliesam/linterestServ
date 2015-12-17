@@ -37,6 +37,7 @@
     <mapping class="com.linterest.dto.UserPersonalityEntity"/>
     <mapping class="com.linterest.dto.UserScoreEntity"/>
     <mapping class="com.linterest.dto.OrderStatusEntity"/>
+    <mapping class="com.linterest.dto.UserDeviceIdEntity"/>
 
   </session-factory>
 </hibernate-configuration>

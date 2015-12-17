@@ -27,7 +27,8 @@ public class UserEntity {
     private String shareCode;
 
     @Id
-    @Column(name = "id")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id", unique = true)
     public int getId() {
         return id;
     }
