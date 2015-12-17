@@ -83,7 +83,7 @@ public class UserService {
         Gson gson = new GsonBuilder().create();
 
         if (deviceName == null || deviceName.length() == 0) {
-            return Response.status(Response.Status.BAD_REQUEST).entity(gson.toJson(new ServerErrorParamEmpty("deviceId"))).build();
+            return Response.status(Response.Status.BAD_REQUEST).entity(gson.toJson(new ServerErrorParamEmpty("deviceName"))).build();
         }
 
         if (deviceId == null || deviceId.length() == 0) {
