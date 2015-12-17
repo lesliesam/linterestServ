@@ -1,5 +1,6 @@
 package com.linterest.dto;
 
+import io.swagger.annotations.ApiModel;
 import org.hibernate.annotations.Type;
 
 import javax.persistence.*;
@@ -10,6 +11,7 @@ import java.sql.Timestamp;
  */
 @Entity
 @Table(name = "user", schema = "", catalog = "linterest")
+@ApiModel(value="User entity", description="User infomation.")
 public class UserEntity {
     private int id;
     private String userName;

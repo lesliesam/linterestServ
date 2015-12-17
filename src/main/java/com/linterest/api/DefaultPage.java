@@ -11,7 +11,7 @@ import javax.ws.rs.core.MediaType;
  * @author <a href="mailto:lesliesam@hotmail.com"> Sam Yu </a>
  */
 
-@Api
+@Api(value = "Welcome Page", hidden = true)
 @Path("/")
 public class DefaultPage {
 
