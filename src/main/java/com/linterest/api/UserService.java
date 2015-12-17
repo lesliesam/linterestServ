@@ -4,12 +4,11 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.linterest.HibernateUtil;
 import com.linterest.dto.UserEntity;
+import com.linterest.error.ServerErrorDuplicateUsername;
 import com.linterest.error.ServerErrorParamEmpty;
 import com.linterest.error.ServerErrorPasswordMismatch;
 import com.linterest.error.ServerErrorUserNotFound;
 import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiImplicitParam;
-import io.swagger.annotations.ApiImplicitParams;
 import org.hibernate.Query;
 import org.hibernate.Session;
 
@@ -26,15 +25,16 @@ import java.util.List;
 @Path("/user")
 public class UserService {
 
-    private static final String QUERY_USER = "from UserEntity";
-
     @GET
     @Path("/all")
     @Produces(MediaType.APPLICATION_JSON)
     public String getAllUser() {
         Gson gson = new GsonBuilder().create();
         Session session = HibernateUtil.getSessionFactory().openSession();
-        Query query = session.createQuery(QUERY_USER);
+
+        String queryUser = "from UserEntity";
+        Query query = session.createQuery(queryUser);
+        query.setMaxResults(10);
         List<UserEntity> list = query.list();
         session.close();
 
@@ -42,10 +42,10 @@ public class UserService {
     }
 
     @POST
-    @Path("/login")
+    @Path("/signup")
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response login(@FormParam("userName")  String userName, @FormParam("password") String password ) {
+    public Response signup(@FormParam("userName") String userName, @FormParam("password") String password) {
         Gson gson = new GsonBuilder().create();
 
         if (userName == null || userName.length() == 0) {
@@ -57,7 +57,45 @@ public class UserService {
         }
 
         Session session = HibernateUtil.getSessionFactory().openSession();
-        Query query = session.createQuery(QUERY_USER + " where userName = '" + userName + "'");
+
+        String queryUser = "from UserEntity where userName = :userName";
+        Query query = session.createQuery(queryUser).
+                setString("userName", userName);
+        List<UserEntity> list = query.list();
+        if (list.size() > 0) {
+            return Response.status(Response.Status.BAD_REQUEST).entity(gson.toJson(new ServerErrorDuplicateUsername(userName))).build();
+        }
+
+        UserEntity user = new UserEntity();
+        user.setUserName(userName);
+        user.setPassword(password);
+        session.getTransaction().begin();
+        session.persist(user);
+        session.getTransaction().commit();
+        session.close();
+
+        return Response.status(Response.Status.OK).entity(gson.toJson(user)).build();
+    }
+
+    @POST
+    @Path("/login")
+    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response login(@FormParam("userName") String userName, @FormParam("password") String password ) {
+        Gson gson = new GsonBuilder().create();
+
+        if (userName == null || userName.length() == 0) {
+            return Response.status(Response.Status.BAD_REQUEST).entity(gson.toJson(new ServerErrorParamEmpty("userName"))).build();
+        }
+
+        if (password == null || password.length() == 0) {
+            return Response.status(Response.Status.BAD_REQUEST).entity(gson.toJson(new ServerErrorParamEmpty("password"))).build();
+        }
+
+        Session session = HibernateUtil.getSessionFactory().openSession();
+        String queryUser = "from UserEntity where userName = :userName";
+        Query query = session.createQuery(queryUser).
+                setString("userName", userName);
         List<UserEntity> list = query.list();
         session.close();
 
