@@ -120,10 +120,9 @@ public class UserService {
             UserDeviceIdEntity deviceIdEntity = new UserDeviceIdEntity();
             deviceIdEntity.setDeviceName(deviceName);
             deviceIdEntity.setDeviceId(deviceId);
+            deviceIdEntity.setUser(user);
 
             session.beginTransaction();
-            session.save(user);
-            deviceIdEntity.setUser(user);
             session.save(deviceIdEntity);
             session.getTransaction().commit();
             session.close();
