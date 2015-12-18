@@ -182,8 +182,12 @@ public class UserService {
     @Path("/setGender")
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response setGender(@FormParam("gender") String gender){
+    public Response setGender(@FormParam("authSession") String authSession, @FormParam("gender") String gender){
         Gson gson = new GsonBuilder().create();
+
+        if (authSession == null || authSession.length() == 0) {
+            return Response.status(Response.Status.FORBIDDEN).entity(gson.toJson(new ServerErrorParamEmpty("authSession"))).build();
+        }
 
         if (gender == null || gender.length() == 0) {
             return Response.status(Response.Status.BAD_REQUEST).entity(gson.toJson(new ServerErrorParamEmpty("gender"))).build();
@@ -195,9 +199,20 @@ public class UserService {
         }
 
         Session session = HibernateUtil.getSessionFactory().openSession();
+        String queryStr = "from UserEntity where session = :session";
+        List<UserEntity> list = session.createQuery(queryStr).
+                setString("session", authSession).list();
+        if (list.size() == 0) {
+            return Response.status(Response.Status.BAD_REQUEST).entity(gson.toJson(new ServerErrorUserNotFound())).build();
+        }
 
+        UserEntity user = list.get(0);
+        user.setGender(gender);
+        session.beginTransaction();
+        session.update(user);
+        session.getTransaction().commit();
 
-        return Response.ok().build();
+        return Response.status(Response.Status.OK).entity(gson.toJson(user)).build();
     }
 
     private String generateUserSessionStr(String userName, String password) {
