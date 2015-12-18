@@ -2,18 +2,23 @@ package com.linterest.api;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.linterest.Constants;
 import com.linterest.HibernateUtil;
 import com.linterest.dto.UserDeviceIdEntity;
 import com.linterest.dto.UserEntity;
 import com.linterest.error.*;
 import io.swagger.annotations.Api;
+import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.commons.codec.digest.Md5Crypt;
 import org.hibernate.Query;
 import org.hibernate.Session;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.util.Iterator;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -34,7 +39,6 @@ public class UserService {
         Query query = session.createQuery(queryUser);
         query.setMaxResults(10);
         List<UserEntity> list = query.list();
-        session.close();
 
         return gson.toJson(list);
     }
@@ -67,10 +71,11 @@ public class UserService {
         UserEntity user = new UserEntity();
         user.setUserName(userName);
         user.setPassword(password);
+        user.setSession(generateUserSessionStr(userName, password));
+
         session.getTransaction().begin();
         session.persist(user);
         session.getTransaction().commit();
-        session.close();
 
         return Response.status(Response.Status.OK).entity(gson.toJson(user)).build();
     }
@@ -110,13 +115,19 @@ public class UserService {
         if (list.size() > 0) {
             // Device found.`
             UserDeviceIdEntity deviceIdEntity = list.get(0);
-            session.close();
+            UserEntity user = deviceIdEntity.getUser();
+            user.setSession(generateUserSessionStr(Constants.GUEST_NAME, Constants.GUEST_PASSWORD));
+            session.beginTransaction();
+            session.update(user);
+            session.getTransaction().commit();
 
-            return Response.status(Response.Status.OK).entity(gson.toJson(deviceIdEntity.getUser())).build();
+            return Response.status(Response.Status.OK).entity(gson.toJson(user)).build();
         } else {
             UserEntity user = new UserEntity();
-            user.setUserName("Guest");
-            user.setPassword("1234567");
+            user.setUserName(Constants.GUEST_NAME);
+            user.setPassword(Constants.GUEST_PASSWORD);
+            user.setSession(generateUserSessionStr(Constants.GUEST_NAME, Constants.GUEST_PASSWORD));
+
             UserDeviceIdEntity deviceIdEntity = new UserDeviceIdEntity();
             deviceIdEntity.setDeviceName(deviceName);
             deviceIdEntity.setDeviceId(deviceId);
@@ -125,7 +136,6 @@ public class UserService {
             session.beginTransaction();
             session.save(deviceIdEntity);
             session.getTransaction().commit();
-            session.close();
 
             return Response.status(Response.Status.OK).entity(gson.toJson(deviceIdEntity.getUser())).build();
         }
@@ -150,7 +160,6 @@ public class UserService {
         String queryStr = "from UserEntity where userName = :userName";
         List<UserEntity> list = session.createQuery(queryStr).
                 setString("userName", userName).list();
-        session.close();
 
         if (list.size() == 0) {
             return Response.status(Response.Status.FORBIDDEN).entity(gson.toJson(new ServerErrorUserNotFound())).build();
@@ -158,9 +167,41 @@ public class UserService {
 
         UserEntity user = list.get(0);
         if (user.getPassword().equals(password)) {
+            user.setSession(generateUserSessionStr(userName, password));
+            session.beginTransaction();
+            session.update(user);
+            session.getTransaction().commit();
+
             return Response.status(Response.Status.OK).entity(gson.toJson(user)).build();
         } else {
             return Response.status(Response.Status.FORBIDDEN).entity(gson.toJson(new ServerErrorPasswordMismatch())).build();
         }
+    }
+
+    @POST
+    @Path("/setGender")
+    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response setGender(@FormParam("gender") String gender){
+        Gson gson = new GsonBuilder().create();
+
+        if (gender == null || gender.length() == 0) {
+            return Response.status(Response.Status.BAD_REQUEST).entity(gson.toJson(new ServerErrorParamEmpty("gender"))).build();
+        }
+
+        if (!gender.equals("male") && !gender.equals("female")) {
+            return Response.status(Response.Status.BAD_REQUEST).entity(gson.toJson(new ServerErrorParamInvalid("gender",
+                    "male or female"))).build();
+        }
+
+        Session session = HibernateUtil.getSessionFactory().openSession();
+
+
+        return Response.ok().build();
+    }
+
+    private String generateUserSessionStr(String userName, String password) {
+        String sessionBeforeCrypt = userName + password + System.currentTimeMillis();
+        return DigestUtils.md5Hex(sessionBeforeCrypt);
     }
 }

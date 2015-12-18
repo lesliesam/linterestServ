@@ -25,10 +25,11 @@ public class UserEntity {
     private Float latitude;
     private Float longitude;
     private String shareCode;
+    private String session;
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id", unique = true)
+    @Column(name = "id", unique = true, nullable = false, insertable = true, updatable = true)
     public int getId() {
         return id;
     }
@@ -38,7 +39,7 @@ public class UserEntity {
     }
 
     @Basic
-    @Column(name = "user_name")
+    @Column(name = "user_name", nullable = false, insertable = true, updatable = true, length = 100)
     public String getUserName() {
         return userName;
     }
@@ -48,7 +49,7 @@ public class UserEntity {
     }
 
     @Basic
-    @Column(name = "password")
+    @Column(name = "password", nullable = false, insertable = true, updatable = true, length = 20)
     public String getPassword() {
         return password;
     }
@@ -58,7 +59,7 @@ public class UserEntity {
     }
 
     @Basic
-    @Column(name = "phone_num")
+    @Column(name = "phone_num", nullable = true, insertable = true, updatable = true, length = 20)
     public String getPhoneNum() {
         return phoneNum;
     }
@@ -92,7 +93,7 @@ public class UserEntity {
     }
 
     @Basic
-    @Column(name = "is_host", columnDefinition = "BIT", length = 1)
+    @Column(name = "is_host", columnDefinition = "BIT", length = 1, nullable = true, insertable = true, updatable = true)
     @Type(type = "org.hibernate.type.NumericBooleanType")
     public boolean getIsHost() {
         return isHost;
@@ -103,7 +104,7 @@ public class UserEntity {
     }
 
     @Basic
-    @Column(name = "gender")
+    @Column(name = "gender", nullable = true, insertable = true, updatable = true, length = 10)
     public String getGender() {
         return gender;
     }
@@ -113,7 +114,7 @@ public class UserEntity {
     }
 
     @Basic
-    @Column(name = "create_time")
+    @Column(name = "create_time", nullable = true, insertable = true, updatable = true)
     public Timestamp getCreateTime() {
         return createTime;
     }
@@ -123,7 +124,7 @@ public class UserEntity {
     }
 
     @Basic
-    @Column(name = "last_login")
+    @Column(name = "last_login", nullable = true, insertable = true, updatable = true)
     public Timestamp getLastLogin() {
         return lastLogin;
     }
@@ -133,7 +134,7 @@ public class UserEntity {
     }
 
     @Basic
-    @Column(name = "city")
+    @Column(name = "city", nullable = true, insertable = true, updatable = true, length = 20)
     public String getCity() {
         return city;
     }
@@ -143,7 +144,7 @@ public class UserEntity {
     }
 
     @Basic
-    @Column(name = "latitude")
+    @Column(name = "latitude", nullable = true, insertable = true, updatable = true, precision = 0)
     public Float getLatitude() {
         return latitude;
     }
@@ -153,7 +154,7 @@ public class UserEntity {
     }
 
     @Basic
-    @Column(name = "longitude")
+    @Column(name = "longitude", nullable = true, insertable = true, updatable = true, precision = 0)
     public Float getLongitude() {
         return longitude;
     }
@@ -163,12 +164,22 @@ public class UserEntity {
     }
 
     @Basic
-    @Column(name = "share_code")
+    @Column(name = "share_code", nullable = true, insertable = true, updatable = true, length = 20)
     public String getShareCode() {
         return shareCode;
     }
 
     public void setShareCode(String shareCode) {
         this.shareCode = shareCode;
+    }
+
+    @Basic
+    @Column(name = "session", nullable = true, insertable = true, updatable = true, length = 30)
+    public String getSession() {
+        return session;
+    }
+
+    public void setSession(String session) {
+        this.session = session;
     }
 }
