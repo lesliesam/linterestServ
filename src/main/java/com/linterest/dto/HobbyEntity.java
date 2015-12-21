@@ -12,6 +12,7 @@ public class HobbyEntity {
     private String hobbyName;
 
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     public int getId() {
         return id;
