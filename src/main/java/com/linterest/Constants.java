@@ -1,6 +1,7 @@
 package com.linterest;
 
 import com.linterest.entity.HobbyEntity;
+import com.linterest.entity.PersonalityEntity;
 
 import java.util.List;
 
@@ -11,5 +12,6 @@ public class Constants {
     public static final String GUEST_NAME = "Guest";
     public static final String GUEST_PASSWORD = "1234567";
 
+    public static List<PersonalityEntity> gPersonalityCache = null;
     public static List<HobbyEntity> gHobbiesCache = null;
 }

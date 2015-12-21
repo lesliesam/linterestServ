@@ -26,6 +26,7 @@ public class UserEntity {
     private Float longitude;
     private String shareCode;
     private String session;
+    private Integer personality;
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -181,5 +182,15 @@ public class UserEntity {
 
     public void setSession(String session) {
         this.session = session;
+    }
+
+    @Basic
+    @Column(name = "personality", nullable = true, insertable = true, updatable = true)
+    public Integer getPersonality() {
+        return personality;
+    }
+
+    public void setPersonality(Integer personality) {
+        this.personality = personality;
     }
 }

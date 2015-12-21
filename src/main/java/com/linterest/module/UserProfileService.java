@@ -6,6 +6,7 @@ import com.linterest.Constants;
 import com.linterest.HibernateUtil;
 import com.linterest.dto.UserHobbyDto;
 import com.linterest.entity.HobbyEntity;
+import com.linterest.entity.PersonalityEntity;
 import com.linterest.entity.UserEntity;
 import com.linterest.entity.UserHobbyEntity;
 import com.linterest.error.ServerErrorParamEmpty;
@@ -60,6 +61,51 @@ public class UserProfileService {
 
         UserEntity user = list.get(0);
         user.setGender(gender);
+        session.beginTransaction();
+        session.update(user);
+        session.getTransaction().commit();
+
+        return Response.status(Response.Status.OK).entity(gson.toJson(user)).build();
+    }
+
+    @POST
+    @Path("/setPersonality")
+    @ApiOperation(value = "设置用户个性", notes = "除预设的个性，其他字符串无效")
+    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response setPersonality(@FormParam("authSession") String authSession, @FormParam("personality") String personality){
+        Gson gson = new GsonBuilder().create();
+
+        if (authSession == null || authSession.length() == 0) {
+            return Response.status(Response.Status.FORBIDDEN).entity(gson.toJson(new ServerErrorParamEmpty("authSession"))).build();
+        }
+
+        if (personality == null || personality.length() == 0) {
+            return Response.status(Response.Status.BAD_REQUEST).entity(gson.toJson(new ServerErrorParamEmpty("gender"))).build();
+        }
+
+        Session session = HibernateUtil.getSessionFactory().openSession();
+        String queryStr = "from UserEntity where session = :session";
+        List<UserEntity> list = session.createQuery(queryStr).
+                setString("session", authSession).list();
+        if (list.size() == 0) {
+            return Response.status(Response.Status.BAD_REQUEST).entity(gson.toJson(new ServerErrorUserNotFound())).build();
+        }
+
+        // Get the hobby id from db.
+        if (Constants.gPersonalityCache == null) {
+            queryStr = "from PersonalityEntity";
+            Constants.gPersonalityCache = session.createQuery(queryStr).list();
+        }
+
+        PersonalityEntity personalityEntity = personalityNameToEntity(personality);
+        if (personalityEntity == null) {
+            return Response.status(Response.Status.BAD_REQUEST).entity(gson.toJson(new ServerErrorParamInvalid("personality",
+                    gson.toJson(Constants.gPersonalityCache)))).build();
+        }
+
+        UserEntity user = list.get(0);
+        user.setPersonality(personalityEntity.getId());
         session.beginTransaction();
         session.update(user);
         session.getTransaction().commit();
@@ -146,7 +192,7 @@ public class UserProfileService {
 
         HobbyEntity hobbyEntity = hobbyNameToEntity(hobby);
         if (hobbyEntity == null) {
-            return Response.status(Response.Status.BAD_REQUEST).entity(gson.toJson(new ServerErrorParamInvalid("personality",
+            return Response.status(Response.Status.BAD_REQUEST).entity(gson.toJson(new ServerErrorParamInvalid("hobby",
                     gson.toJson(Constants.gHobbiesCache)))).build();
         }
 
@@ -211,6 +257,17 @@ public class UserProfileService {
             HobbyEntity hobbyEntity = it.next();
             if (hobbyEntity.getId() == id) {
                 return hobbyEntity;
+            }
+        }
+        return null;
+    }
+
+    private PersonalityEntity personalityNameToEntity(String personality) {
+        Iterator<PersonalityEntity> it = Constants.gPersonalityCache.iterator();
+        while (it.hasNext()) {
+            PersonalityEntity personalityEntity = it.next();
+            if (personalityEntity.getName().equals(personality)) {
+                return personalityEntity;
             }
         }
         return null;
