@@ -64,6 +64,34 @@ public class UserProfileService {
         return Response.status(Response.Status.OK).entity(gson.toJson(user)).build();
     }
 
+    @GET
+    @Path("/getHobby")
+    @ApiOperation(value = "获取用户兴趣列表", notes = "")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getHobby(@HeaderParam("authSession") String authSession) {
+        Gson gson = new GsonBuilder().create();
+
+        if (authSession == null || authSession.length() == 0) {
+            return Response.status(Response.Status.FORBIDDEN).entity(gson.toJson(new ServerErrorParamEmpty("authSession"))).build();
+        }
+
+        Session session = HibernateUtil.getSessionFactory().openSession();
+        String queryStr = "from UserEntity where session = :session";
+        List<UserEntity> list = session.createQuery(queryStr).
+                setString("session", authSession).list();
+        if (list.size() == 0) {
+            return Response.status(Response.Status.BAD_REQUEST).entity(gson.toJson(new ServerErrorUserNotFound())).build();
+        }
+
+        UserEntity user = list.get(0);
+        int id = user.getId();
+        queryStr = "from UserHobbyEntity where userId = :userId";
+        List<UserHobbyEntity> userHobbies = session.createQuery(queryStr).
+                setString("userId", String.valueOf(id)).list();
+
+        return Response.ok().entity(gson.toJson(userHobbies)).build();
+    }
+
     @POST
     @Path("/setHobby")
     @ApiOperation(value = "设置用户兴趣爱好", notes = "有多个预设的兴趣爱好，其他字符串无效")
