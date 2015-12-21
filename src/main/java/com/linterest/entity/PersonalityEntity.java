@@ -1,4 +1,4 @@
-package com.linterest.dto;
+package com.linterest.entity;
 
 import javax.persistence.*;
 
@@ -6,10 +6,10 @@ import javax.persistence.*;
  * @author <a href="mailto:lesliesam@hotmail.com"> Sam Yu </a>
  */
 @Entity
-@Table(name = "couponType", schema = "", catalog = "linterest")
-public class CouponTypeEntity {
+@Table(name = "personality", schema = "", catalog = "linterest")
+public class PersonalityEntity {
     private int id;
-    private String typeName;
+    private String name;
 
     @Id
     @Column(name = "id")
@@ -22,13 +22,13 @@ public class CouponTypeEntity {
     }
 
     @Basic
-    @Column(name = "type_name")
-    public String getTypeName() {
-        return typeName;
+    @Column(name = "name")
+    public String getName() {
+        return name;
     }
 
-    public void setTypeName(String typeName) {
-        this.typeName = typeName;
+    public void setName(String name) {
+        this.name = name;
     }
 
     @Override
@@ -36,10 +36,10 @@ public class CouponTypeEntity {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        CouponTypeEntity that = (CouponTypeEntity) o;
+        PersonalityEntity that = (PersonalityEntity) o;
 
         if (id != that.id) return false;
-        if (typeName != null ? !typeName.equals(that.typeName) : that.typeName != null) return false;
+        if (name != null ? !name.equals(that.name) : that.name != null) return false;
 
         return true;
     }
@@ -47,7 +47,7 @@ public class CouponTypeEntity {
     @Override
     public int hashCode() {
         int result = id;
-        result = 31 * result + (typeName != null ? typeName.hashCode() : 0);
+        result = 31 * result + (name != null ? name.hashCode() : 0);
         return result;
     }
 }

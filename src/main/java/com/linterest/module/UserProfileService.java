@@ -1,12 +1,13 @@
-package com.linterest.api;
+package com.linterest.module;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.linterest.Constants;
 import com.linterest.HibernateUtil;
-import com.linterest.dto.HobbyEntity;
-import com.linterest.dto.UserEntity;
-import com.linterest.dto.UserHobbyEntity;
+import com.linterest.dto.UserHobbyDto;
+import com.linterest.entity.HobbyEntity;
+import com.linterest.entity.UserEntity;
+import com.linterest.entity.UserHobbyEntity;
 import com.linterest.error.ServerErrorParamEmpty;
 import com.linterest.error.ServerErrorParamInvalid;
 import com.linterest.error.ServerErrorUserNotFound;
@@ -17,6 +18,7 @@ import org.hibernate.Session;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
@@ -26,6 +28,7 @@ import java.util.List;
 @Api(value = "User Profile service")
 @Path("/userProfile")
 public class UserProfileService {
+
     @POST
     @Path("/setGender")
     @ApiOperation(value = "设置用户性别", notes = "性别可以是male或者female，其他字符串无效")
@@ -66,7 +69,7 @@ public class UserProfileService {
 
     @GET
     @Path("/getHobby")
-    @ApiOperation(value = "获取用户兴趣列表", notes = "")
+    @ApiOperation(value = "获取用户兴趣列表", notes = "获取所有兴趣列表，返回结果无序")
     @Produces(MediaType.APPLICATION_JSON)
     public Response getHobby(@HeaderParam("authSession") String authSession) {
         Gson gson = new GsonBuilder().create();
@@ -83,21 +86,40 @@ public class UserProfileService {
             return Response.status(Response.Status.BAD_REQUEST).entity(gson.toJson(new ServerErrorUserNotFound())).build();
         }
 
+        // Get the hobby id from db.
+        if (Constants.gHobbiesCache == null) {
+            queryStr = "from HobbyEntity";
+            Constants.gHobbiesCache = session.createQuery(queryStr).list();
+        }
+
         UserEntity user = list.get(0);
         int id = user.getId();
-        queryStr = "from UserHobbyEntity where userId = :userId";
-        List<UserHobbyEntity> userHobbies = session.createQuery(queryStr).
+        queryStr = "from UserHobbyEntity where userId = :userId and deleted = false";
+        List<UserHobbyEntity> userHobbiesEntityList = session.createQuery(queryStr).
                 setString("userId", String.valueOf(id)).list();
 
-        return Response.ok().entity(gson.toJson(userHobbies)).build();
+        return Response.ok().entity(gson.toJson(userHobbyEntityToDto(userHobbiesEntityList))).build();
     }
 
     @POST
-    @Path("/setHobby")
-    @ApiOperation(value = "设置用户兴趣爱好", notes = "有多个预设的兴趣爱好，其他字符串无效")
+    @Path("/addHobby")
+    @ApiOperation(value = "添加用户兴趣爱好", notes = "除预设兴趣爱好，其他字符串无效")
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response setHobby(@FormParam("authSession") String authSession, @FormParam("hobby") String hobby) {
+    public Response addHobby(@HeaderParam("authSession") String authSession, @FormParam("hobby") String hobby) {
+        return updateUserHobby(authSession, hobby, false);
+    }
+
+    @POST
+    @Path("/deleteHobby")
+    @ApiOperation(value = "删除用户兴趣爱好", notes = "除预设兴趣爱好，其他字符串无效")
+    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response deleteHobby(@HeaderParam("authSession") String authSession, @FormParam("hobby") String hobby) {
+        return updateUserHobby(authSession, hobby, true);
+    }
+
+    private Response updateUserHobby(String authSession, String hobby, boolean deleted) {
         Gson gson = new GsonBuilder().create();
 
         if (authSession == null || authSession.length() == 0) {
@@ -122,46 +144,75 @@ public class UserProfileService {
             Constants.gHobbiesCache = session.createQuery(queryStr).list();
         }
 
-        Iterator<HobbyEntity> it = Constants.gHobbiesCache.iterator();
-        int hobbyId = -1;
-        while (it.hasNext()) {
-            HobbyEntity hobbyEntity = it.next();
-            if (hobbyEntity.getHobbyName().equals(hobby)) {
-                hobbyId = hobbyEntity.getId();
-                break;
-            }
-        }
-
-        if (hobbyId == -1) {
+        HobbyEntity hobbyEntity = hobbyNameToEntity(hobby);
+        if (hobbyEntity == null) {
             return Response.status(Response.Status.BAD_REQUEST).entity(gson.toJson(new ServerErrorParamInvalid("personality",
                     gson.toJson(Constants.gHobbiesCache)))).build();
         }
 
         UserEntity user = list.get(0);
         int id = user.getId();
-        queryStr = "from UserHobbyEntity where userId = :userId";
+        queryStr = "from UserHobbyEntity where userId = :userId and hobbyId = :hobbyId";
         List<UserHobbyEntity> userHobbies = session.createQuery(queryStr).
-                setString("userId", String.valueOf(id)).list();
-        Iterator<UserHobbyEntity> hobbyIt = userHobbies.iterator();
-        boolean alreadyExist = false;
-        while (hobbyIt.hasNext()) {
-            UserHobbyEntity userHobbyEntity = hobbyIt.next();
-            if (userHobbyEntity.getHobbyId() == hobbyId) {
-                alreadyExist = true;
-                break;
-            }
-        }
+                setString("userId", String.valueOf(id)).
+                setString("hobbyId", String.valueOf(hobbyEntity.getId())).list();
 
-        if (!alreadyExist) {
+        if (userHobbies.size() == 0) {
             UserHobbyEntity userHobbyEntity = new UserHobbyEntity();
             userHobbyEntity.setUserId(id);
-            userHobbyEntity.setHobbyId(hobbyId);
+            userHobbyEntity.setHobbyId(hobbyEntity.getId());
+            userHobbyEntity.setDeleted(deleted);
 
             session.beginTransaction();
             session.save(userHobbyEntity);
             session.getTransaction().commit();
+        } else {
+            UserHobbyEntity userHobbyEntity = userHobbies.get(0);
+            userHobbyEntity.setDeleted(deleted);
+            session.beginTransaction();
+            session.update(userHobbyEntity);
+            session.getTransaction().commit();
         }
 
         return Response.status(Response.Status.OK).build();
+    }
+
+
+    private List<UserHobbyDto> userHobbyEntityToDto(List<UserHobbyEntity> userHobbyEntities) {
+        List<UserHobbyDto> userHobbies = new ArrayList<UserHobbyDto>();
+        Iterator<UserHobbyEntity> userHobbyIterator = userHobbyEntities.iterator();
+        while (userHobbyIterator.hasNext()) {
+            UserHobbyEntity userHobby = userHobbyIterator.next();
+            HobbyEntity entity = hobbyIdToEntity(userHobby.getHobbyId());
+
+            UserHobbyDto dto = new UserHobbyDto();
+            dto.id = entity.getId();
+            dto.hobbyName = entity.getHobbyName();
+            userHobbies.add(dto);
+        }
+
+        return userHobbies;
+    }
+
+    private HobbyEntity hobbyNameToEntity(String hobby) {
+        Iterator<HobbyEntity> it = Constants.gHobbiesCache.iterator();
+        while (it.hasNext()) {
+            HobbyEntity hobbyEntity = it.next();
+            if (hobbyEntity.getHobbyName().equals(hobby)) {
+                return hobbyEntity;
+            }
+        }
+        return null;
+    }
+
+    private HobbyEntity hobbyIdToEntity(int id) {
+        Iterator<HobbyEntity> it = Constants.gHobbiesCache.iterator();
+        while (it.hasNext()) {
+            HobbyEntity hobbyEntity = it.next();
+            if (hobbyEntity.getId() == id) {
+                return hobbyEntity;
+            }
+        }
+        return null;
     }
 }

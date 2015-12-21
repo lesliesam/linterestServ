@@ -1,4 +1,4 @@
-package com.linterest.dto;
+package com.linterest.entity;
 
 import javax.persistence.*;
 import java.sql.Timestamp;

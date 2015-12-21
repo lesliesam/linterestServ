@@ -1,6 +1,6 @@
 package com.linterest;
 
-import com.linterest.dto.HobbyEntity;
+import com.linterest.entity.HobbyEntity;
 
 import java.util.List;
 

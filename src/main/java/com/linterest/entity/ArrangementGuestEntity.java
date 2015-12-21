@@ -1,4 +1,4 @@
-package com.linterest.dto;
+package com.linterest.entity;
 
 import org.hibernate.annotations.Type;
 

@@ -1,4 +1,4 @@
-package com.linterest.dto;
+package com.linterest.entity;
 
 import io.swagger.annotations.ApiModel;
 import org.hibernate.annotations.Type;

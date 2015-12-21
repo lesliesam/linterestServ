@@ -18,27 +18,27 @@
     <property name="hbm2ddl.auto">validate</property>
     <property name="hibernate.transaction.auto_close_session">true</property>
 
-    <mapping class="com.linterest.dto.UserEntity"/>
-    <mapping class="com.linterest.dto.ArrangementEntity"/>
-    <mapping class="com.linterest.dto.ArrangementDiscussionEntity"/>
-    <mapping class="com.linterest.dto.ArrangementGuestEntity"/>
-    <mapping class="com.linterest.dto.ArrangementStatusEntity"/>
-    <mapping class="com.linterest.dto.CouponEntity"/>
-    <mapping class="com.linterest.dto.CouponTypeEntity"/>
-    <mapping class="com.linterest.dto.DishEntity"/>
-    <mapping class="com.linterest.dto.HobbyEntity"/>
-    <mapping class="com.linterest.dto.MenuEntity"/>
-    <mapping class="com.linterest.dto.MenuDishEntity"/>
-    <mapping class="com.linterest.dto.PersonalityEntity"/>
-    <mapping class="com.linterest.dto.UserArrangementLikeEntity"/>
-    <mapping class="com.linterest.dto.UserCouponEntity"/>
-    <mapping class="com.linterest.dto.UserCouponStatusEntity"/>
-    <mapping class="com.linterest.dto.UserHobbyEntity"/>
-    <mapping class="com.linterest.dto.UserOrderEntity"/>
-    <mapping class="com.linterest.dto.UserPersonalityEntity"/>
-    <mapping class="com.linterest.dto.UserScoreEntity"/>
-    <mapping class="com.linterest.dto.OrderStatusEntity"/>
-    <mapping class="com.linterest.dto.UserDeviceIdEntity"/>
+    <mapping class="com.linterest.entity.UserEntity"/>
+    <mapping class="com.linterest.entity.ArrangementEntity"/>
+    <mapping class="com.linterest.entity.ArrangementDiscussionEntity"/>
+    <mapping class="com.linterest.entity.ArrangementGuestEntity"/>
+    <mapping class="com.linterest.entity.ArrangementStatusEntity"/>
+    <mapping class="com.linterest.entity.CouponEntity"/>
+    <mapping class="com.linterest.entity.CouponTypeEntity"/>
+    <mapping class="com.linterest.entity.DishEntity"/>
+    <mapping class="com.linterest.entity.HobbyEntity"/>
+    <mapping class="com.linterest.entity.MenuEntity"/>
+    <mapping class="com.linterest.entity.MenuDishEntity"/>
+    <mapping class="com.linterest.entity.PersonalityEntity"/>
+    <mapping class="com.linterest.entity.UserArrangementLikeEntity"/>
+    <mapping class="com.linterest.entity.UserCouponEntity"/>
+    <mapping class="com.linterest.entity.UserCouponStatusEntity"/>
+    <mapping class="com.linterest.entity.UserHobbyEntity"/>
+    <mapping class="com.linterest.entity.UserOrderEntity"/>
+    <mapping class="com.linterest.entity.UserPersonalityEntity"/>
+    <mapping class="com.linterest.entity.UserScoreEntity"/>
+    <mapping class="com.linterest.entity.OrderStatusEntity"/>
+    <mapping class="com.linterest.entity.UserDeviceIdEntity"/>
 
   </session-factory>
 </hibernate-configuration>

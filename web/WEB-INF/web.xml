@@ -48,7 +48,7 @@
                 io.swagger.jaxrs.listing,
                 org.glassfish.jersey.media.multipart.MultiPartFeature,
                 org.glassfish.jersey.filter.LoggingFilter,
-                com.linterest.api
+                com.linterest.module
             </param-value>
         </init-param>
         <load-on-startup>1</load-on-startup>

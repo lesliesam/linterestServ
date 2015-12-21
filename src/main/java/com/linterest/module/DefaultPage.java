@@ -1,4 +1,4 @@
-package com.linterest.api;
+package com.linterest.module;
 
 import io.swagger.annotations.Api;
 

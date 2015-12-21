@@ -1,4 +1,4 @@
-package com.linterest.dto;
+package com.linterest.entity;
 
 import javax.persistence.*;
 
@@ -6,8 +6,8 @@ import javax.persistence.*;
  * @author <a href="mailto:lesliesam@hotmail.com"> Sam Yu </a>
  */
 @Entity
-@Table(name = "orderStatus", schema = "", catalog = "linterest")
-public class OrderStatusEntity {
+@Table(name = "arrangementStatus", schema = "", catalog = "linterest")
+public class ArrangementStatusEntity {
     private int id;
     private String name;
 
@@ -36,7 +36,7 @@ public class OrderStatusEntity {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        OrderStatusEntity that = (OrderStatusEntity) o;
+        ArrangementStatusEntity that = (ArrangementStatusEntity) o;
 
         if (id != that.id) return false;
         if (name != null ? !name.equals(that.name) : that.name != null) return false;

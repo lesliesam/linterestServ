@@ -1,4 +1,6 @@
-package com.linterest.dto;
+package com.linterest.entity;
+
+import org.hibernate.annotations.Type;
 
 import javax.persistence.*;
 
@@ -11,6 +13,7 @@ public class UserHobbyEntity {
     private int userId;
     private int hobbyId;
     private int id;
+    private boolean deleted;
 
     @Basic
     @Column(name = "user_id")
@@ -61,5 +64,16 @@ public class UserHobbyEntity {
 
     public void setId(int id) {
         this.id = id;
+    }
+
+    @Basic
+    @Column(name = "deleted", columnDefinition = "BIT", length = 1, nullable = true, insertable = true, updatable = true)
+    @Type(type = "org.hibernate.type.NumericBooleanType")
+    public boolean getDeleted() {
+        return deleted;
+    }
+
+    public void setDeleted(boolean deleted) {
+        this.deleted = deleted;
     }
 }

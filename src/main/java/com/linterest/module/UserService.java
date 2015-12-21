@@ -1,10 +1,10 @@
-package com.linterest.api;
+package com.linterest.module;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.linterest.Constants;
 import com.linterest.HibernateUtil;
-import com.linterest.dto.*;
+import com.linterest.entity.*;
 import com.linterest.error.*;
 import io.swagger.annotations.*;
 import org.apache.commons.codec.digest.DigestUtils;
@@ -14,8 +14,6 @@ import org.hibernate.Session;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import javax.xml.bind.annotation.XmlElement;
-import java.util.Iterator;
 import java.util.List;
 
 /**

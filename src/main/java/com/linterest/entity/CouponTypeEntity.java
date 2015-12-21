@@ -1,4 +1,4 @@
-package com.linterest.dto;
+package com.linterest.entity;
 
 import javax.persistence.*;
 
@@ -6,13 +6,12 @@ import javax.persistence.*;
  * @author <a href="mailto:lesliesam@hotmail.com"> Sam Yu </a>
  */
 @Entity
-@Table(name = "hobby", schema = "", catalog = "linterest")
-public class HobbyEntity {
+@Table(name = "couponType", schema = "", catalog = "linterest")
+public class CouponTypeEntity {
     private int id;
-    private String hobbyName;
+    private String typeName;
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     public int getId() {
         return id;
@@ -23,13 +22,13 @@ public class HobbyEntity {
     }
 
     @Basic
-    @Column(name = "hobby_name")
-    public String getHobbyName() {
-        return hobbyName;
+    @Column(name = "type_name")
+    public String getTypeName() {
+        return typeName;
     }
 
-    public void setHobbyName(String hobbyName) {
-        this.hobbyName = hobbyName;
+    public void setTypeName(String typeName) {
+        this.typeName = typeName;
     }
 
     @Override
@@ -37,10 +36,10 @@ public class HobbyEntity {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        HobbyEntity that = (HobbyEntity) o;
+        CouponTypeEntity that = (CouponTypeEntity) o;
 
         if (id != that.id) return false;
-        if (hobbyName != null ? !hobbyName.equals(that.hobbyName) : that.hobbyName != null) return false;
+        if (typeName != null ? !typeName.equals(that.typeName) : that.typeName != null) return false;
 
         return true;
     }
@@ -48,7 +47,7 @@ public class HobbyEntity {
     @Override
     public int hashCode() {
         int result = id;
-        result = 31 * result + (hobbyName != null ? hobbyName.hashCode() : 0);
+        result = 31 * result + (typeName != null ? typeName.hashCode() : 0);
         return result;
     }
 }
