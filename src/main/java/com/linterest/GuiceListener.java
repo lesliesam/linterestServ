@@ -7,10 +7,7 @@ import com.google.inject.servlet.GuiceServletContextListener;
 import com.google.inject.servlet.ServletModule;
 import com.linterest.annotation.CacheEnabled;
 import com.linterest.interceptor.CacheInterceptor;
-import com.linterest.services.PersonalityServices;
-import com.linterest.services.PersonalityServicesImpl;
-import com.linterest.services.UserServices;
-import com.linterest.services.UserServicesImpl;
+import com.linterest.services.*;
 
 /**
  * @author <a href="mailto:lesliesam@hotmail.com"> Sam Yu </a>
@@ -25,6 +22,7 @@ public class GuiceListener extends GuiceServletContextListener {
             protected void configureServlets() {
                 bind(UserServices.class).to(UserServicesImpl.class);
                 bind(PersonalityServices.class).to(PersonalityServicesImpl.class);
+                bind(HobbyServices.class).to(HobbyServicesImpl.class);
 
                 bindInterceptor(Matchers.any(),
                         Matchers.annotatedWith(CacheEnabled.class),
