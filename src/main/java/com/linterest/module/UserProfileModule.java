@@ -2,9 +2,7 @@ package com.linterest.module;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.linterest.Constants;
 import com.linterest.GuiceInstance;
-import com.linterest.HibernateUtil;
 import com.linterest.dto.UserHobbyDto;
 import com.linterest.entity.HobbyEntity;
 import com.linterest.entity.PersonalityEntity;
@@ -18,7 +16,6 @@ import com.linterest.services.PersonalityServices;
 import com.linterest.services.UserServices;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
-import org.hibernate.Session;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;

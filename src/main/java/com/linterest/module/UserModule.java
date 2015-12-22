@@ -3,13 +3,11 @@ package com.linterest.module;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.linterest.GuiceInstance;
-import com.linterest.HibernateUtil;
 import com.linterest.entity.*;
 import com.linterest.error.*;
 import com.linterest.services.UserServices;
 import io.swagger.annotations.*;
 import org.apache.commons.codec.digest.DigestUtils;
-import org.hibernate.Session;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
