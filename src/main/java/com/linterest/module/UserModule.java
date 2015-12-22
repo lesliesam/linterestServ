@@ -2,22 +2,15 @@ package com.linterest.module;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.google.inject.Guice;
-import com.google.inject.Inject;
-import com.linterest.Constants;
 import com.linterest.GuiceInstance;
 import com.linterest.HibernateUtil;
-import com.linterest.annotation.CacheEnabled;
 import com.linterest.entity.*;
 import com.linterest.error.*;
 import com.linterest.services.UserServices;
 import io.swagger.annotations.*;
 import org.apache.commons.codec.digest.DigestUtils;
-import org.hibernate.Query;
 import org.hibernate.Session;
 
-import javax.inject.Singleton;
-import javax.servlet.http.HttpServlet;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -36,12 +29,8 @@ public class UserModule {
     @Produces(MediaType.APPLICATION_JSON)
     public String getAllUser() {
         Gson gson = new GsonBuilder().create();
-        Session session = HibernateUtil.getSessionFactory().openSession();
-
-        String queryUser = "from UserEntity";
-        Query query = session.createQuery(queryUser);
-        query.setMaxResults(10);
-        List<UserEntity> list = query.list();
+        UserServices services = GuiceInstance.getGuiceInjector().getInstance(UserServices.class);
+        List<?> list = services.getAllUsers();
 
         return gson.toJson(list);
     }
@@ -62,25 +51,13 @@ public class UserModule {
             return Response.status(Response.Status.BAD_REQUEST).entity(gson.toJson(new ServerErrorParamEmpty("password"))).build();
         }
 
-        Session session = HibernateUtil.getSessionFactory().openSession();
-
-        String queryStr = "from UserEntity where userName = :userName";
-        List<UserEntity> list = session.createQuery(queryStr).
-                setString("userName", userName).
-                list();
+        UserServices services = GuiceInstance.getGuiceInjector().getInstance(UserServices.class);
+        List<UserEntity> list = services.getUser(userName);
         if (list.size() > 0) {
             return Response.status(Response.Status.BAD_REQUEST).entity(gson.toJson(new ServerErrorDuplicateUsername(userName))).build();
         }
 
-        UserEntity user = new UserEntity();
-        user.setUserName(userName);
-        user.setPassword(password);
-        user.setSession(generateUserSessionStr(userName, password));
-
-        session.getTransaction().begin();
-        session.persist(user);
-        session.getTransaction().commit();
-
+        UserEntity user = services.userSignup(userName, password);
         return Response.status(Response.Status.OK).entity(gson.toJson(user)).build();
     }
 
@@ -110,40 +87,10 @@ public class UserModule {
                     "a1b27dc3c577446a2bcbd77935bda1b2"))).build();
         }
 
-        Session session = HibernateUtil.getSessionFactory().openSession();
+        UserServices services = GuiceInstance.getGuiceInjector().getInstance(UserServices.class);
+        UserEntity user = services.userSignupWithDevice(deviceName, deviceId);
 
-        String queryStr = "from UserDeviceIdEntity where deviceName = :deviceName and deviceId = :deviceId";
-        List<UserDeviceIdEntity> list = session.createQuery(queryStr).
-                setString("deviceName", deviceName).
-                setString("deviceId", deviceId)
-                .list();
-        if (list.size() > 0) {
-            // Device found.`
-            UserDeviceIdEntity deviceIdEntity = list.get(0);
-            UserEntity user = deviceIdEntity.getUser();
-            user.setSession(generateUserSessionStr(Constants.GUEST_NAME, Constants.GUEST_PASSWORD));
-            session.beginTransaction();
-            session.update(user);
-            session.getTransaction().commit();
-
-            return Response.status(Response.Status.OK).entity(gson.toJson(user)).build();
-        } else {
-            UserEntity user = new UserEntity();
-            user.setUserName(Constants.GUEST_NAME);
-            user.setPassword(Constants.GUEST_PASSWORD);
-            user.setSession(generateUserSessionStr(Constants.GUEST_NAME, Constants.GUEST_PASSWORD));
-
-            UserDeviceIdEntity deviceIdEntity = new UserDeviceIdEntity();
-            deviceIdEntity.setDeviceName(deviceName);
-            deviceIdEntity.setDeviceId(deviceId);
-            deviceIdEntity.setUser(user);
-
-            session.beginTransaction();
-            session.save(deviceIdEntity);
-            session.getTransaction().commit();
-
-            return Response.status(Response.Status.OK).entity(gson.toJson(deviceIdEntity.getUser())).build();
-        }
+        return Response.status(Response.Status.OK).entity(gson.toJson(user)).build();
     }
 
     @POST
@@ -162,22 +109,15 @@ public class UserModule {
             return Response.status(Response.Status.BAD_REQUEST).entity(gson.toJson(new ServerErrorParamEmpty("password"))).build();
         }
 
-        Session session = HibernateUtil.getSessionFactory().openSession();
-        String queryStr = "from UserEntity where userName = :userName";
-        List<UserEntity> list = session.createQuery(queryStr).
-                setString("userName", userName).list();
-
+        UserServices services = GuiceInstance.getGuiceInjector().getInstance(UserServices.class);
+        List<UserEntity> list = services.getUser(userName);
         if (list.size() == 0) {
             return Response.status(Response.Status.FORBIDDEN).entity(gson.toJson(new ServerErrorUserNotFound())).build();
         }
 
         UserEntity user = list.get(0);
         if (user.getPassword().equals(password)) {
-            user.setSession(generateUserSessionStr(userName, password));
-            session.beginTransaction();
-            session.update(user);
-            session.getTransaction().commit();
-
+            services.updateUserSession(user);
             return Response.status(Response.Status.OK).entity(gson.toJson(user)).build();
         } else {
             return Response.status(Response.Status.FORBIDDEN).entity(gson.toJson(new ServerErrorPasswordMismatch())).build();

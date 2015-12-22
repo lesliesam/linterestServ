@@ -3,6 +3,7 @@ package com.linterest.module;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.linterest.Constants;
+import com.linterest.GuiceInstance;
 import com.linterest.HibernateUtil;
 import com.linterest.dto.UserHobbyDto;
 import com.linterest.entity.HobbyEntity;
@@ -12,12 +13,13 @@ import com.linterest.entity.UserHobbyEntity;
 import com.linterest.error.ServerErrorParamEmpty;
 import com.linterest.error.ServerErrorParamInvalid;
 import com.linterest.error.ServerErrorUserNotFound;
+import com.linterest.services.HobbyServices;
+import com.linterest.services.PersonalityServices;
+import com.linterest.services.UserServices;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.hibernate.Session;
-import org.hibernate.annotations.Cache;
 
-import javax.persistence.Cacheable;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -53,19 +55,14 @@ public class UserProfileModule {
                     "male or female"))).build();
         }
 
-        Session session = HibernateUtil.getSessionFactory().openSession();
-        String queryStr = "from UserEntity where session = :session";
-        List<UserEntity> list = session.createQuery(queryStr).
-                setString("session", authSession).list();
+        UserServices services = GuiceInstance.getGuiceInjector().getInstance(UserServices.class);
+        List<UserEntity> list = services.getUserWithAuthSession(authSession);
         if (list.size() == 0) {
             return Response.status(Response.Status.BAD_REQUEST).entity(gson.toJson(new ServerErrorUserNotFound())).build();
         }
 
         UserEntity user = list.get(0);
-        user.setGender(gender);
-        session.beginTransaction();
-        session.update(user);
-        session.getTransaction().commit();
+        services.updateUserGender(user, gender);
 
         return Response.status(Response.Status.OK).entity(gson.toJson(user)).build();
     }
@@ -86,31 +83,23 @@ public class UserProfileModule {
             return Response.status(Response.Status.BAD_REQUEST).entity(gson.toJson(new ServerErrorParamEmpty("gender"))).build();
         }
 
-        Session session = HibernateUtil.getSessionFactory().openSession();
-        String queryStr = "from UserEntity where session = :session";
-        List<UserEntity> list = session.createQuery(queryStr).
-                setString("session", authSession).list();
-        if (list.size() == 0) {
-            return Response.status(Response.Status.BAD_REQUEST).entity(gson.toJson(new ServerErrorUserNotFound())).build();
-        }
-
-        // Get the hobby id from db.
-        if (Constants.gPersonalityCache == null) {
-            queryStr = "from PersonalityEntity";
-            Constants.gPersonalityCache = session.createQuery(queryStr).list();
-        }
+        PersonalityServices pServices = GuiceInstance.getGuiceInjector().getInstance(PersonalityServices.class);
+        List<PersonalityEntity> personalityEntities = pServices.getAll();
 
         PersonalityEntity personalityEntity = personalityNameToEntity(personality);
         if (personalityEntity == null) {
             return Response.status(Response.Status.BAD_REQUEST).entity(gson.toJson(new ServerErrorParamInvalid("personality",
-                    gson.toJson(Constants.gPersonalityCache)))).build();
+                    gson.toJson(personalityEntities)))).build();
+        }
+
+        UserServices services = GuiceInstance.getGuiceInjector().getInstance(UserServices.class);
+        List<UserEntity> list = services.getUserWithAuthSession(authSession);
+        if (list.size() == 0) {
+            return Response.status(Response.Status.BAD_REQUEST).entity(gson.toJson(new ServerErrorUserNotFound())).build();
         }
 
         UserEntity user = list.get(0);
-        user.setPersonality(personalityEntity.getId());
-        session.beginTransaction();
-        session.update(user);
-        session.getTransaction().commit();
+        services.updateUserPersonality(user, personalityEntity);
 
         return Response.status(Response.Status.OK).entity(gson.toJson(user)).build();
     }
@@ -126,25 +115,14 @@ public class UserProfileModule {
             return Response.status(Response.Status.FORBIDDEN).entity(gson.toJson(new ServerErrorParamEmpty("authSession"))).build();
         }
 
-        Session session = HibernateUtil.getSessionFactory().openSession();
-        String queryStr = "from UserEntity where session = :session";
-        List<UserEntity> list = session.createQuery(queryStr).
-                setString("session", authSession).list();
+        UserServices services = GuiceInstance.getGuiceInjector().getInstance(UserServices.class);
+        List<UserEntity> list = services.getUserWithAuthSession(authSession);
         if (list.size() == 0) {
             return Response.status(Response.Status.BAD_REQUEST).entity(gson.toJson(new ServerErrorUserNotFound())).build();
         }
 
-        // Get the hobby id from db.
-        if (Constants.gHobbiesCache == null) {
-            queryStr = "from HobbyEntity";
-            Constants.gHobbiesCache = session.createQuery(queryStr).list();
-        }
-
         UserEntity user = list.get(0);
-        int id = user.getId();
-        queryStr = "from UserHobbyEntity where userId = :userId and deleted = false";
-        List<UserHobbyEntity> userHobbiesEntityList = session.createQuery(queryStr).
-                setString("userId", String.valueOf(id)).list();
+        List<UserHobbyEntity> userHobbiesEntityList = services.getUserHobby(user);
 
         return Response.ok().entity(gson.toJson(userHobbyEntityToDto(userHobbiesEntityList))).build();
     }
@@ -178,49 +156,23 @@ public class UserProfileModule {
             return Response.status(Response.Status.BAD_REQUEST).entity(gson.toJson(new ServerErrorParamEmpty("hobby"))).build();
         }
 
-        Session session = HibernateUtil.getSessionFactory().openSession();
-        String queryStr = "from UserEntity where session = :session";
-        List<UserEntity> list = session.createQuery(queryStr).
-                setString("session", authSession).list();
+        HobbyServices hServices = GuiceInstance.getGuiceInjector().getInstance(HobbyServices.class);
+        List<HobbyEntity> hobbyEntities = hServices.getAll();
+
+        UserServices services = GuiceInstance.getGuiceInjector().getInstance(UserServices.class);
+        List<UserEntity> list = services.getUserWithAuthSession(authSession);
         if (list.size() == 0) {
             return Response.status(Response.Status.BAD_REQUEST).entity(gson.toJson(new ServerErrorUserNotFound())).build();
-        }
-
-        // Get the hobby id from db.
-        if (Constants.gHobbiesCache == null) {
-            queryStr = "from HobbyEntity";
-            Constants.gHobbiesCache = session.createQuery(queryStr).list();
         }
 
         HobbyEntity hobbyEntity = hobbyNameToEntity(hobby);
         if (hobbyEntity == null) {
             return Response.status(Response.Status.BAD_REQUEST).entity(gson.toJson(new ServerErrorParamInvalid("hobby",
-                    gson.toJson(Constants.gHobbiesCache)))).build();
+                    gson.toJson(hobbyEntities)))).build();
         }
 
         UserEntity user = list.get(0);
-        int id = user.getId();
-        queryStr = "from UserHobbyEntity where userId = :userId and hobbyId = :hobbyId";
-        List<UserHobbyEntity> userHobbies = session.createQuery(queryStr).
-                setString("userId", String.valueOf(id)).
-                setString("hobbyId", String.valueOf(hobbyEntity.getId())).list();
-
-        if (userHobbies.size() == 0) {
-            UserHobbyEntity userHobbyEntity = new UserHobbyEntity();
-            userHobbyEntity.setUserId(id);
-            userHobbyEntity.setHobbyId(hobbyEntity.getId());
-            userHobbyEntity.setDeleted(deleted);
-
-            session.beginTransaction();
-            session.save(userHobbyEntity);
-            session.getTransaction().commit();
-        } else {
-            UserHobbyEntity userHobbyEntity = userHobbies.get(0);
-            userHobbyEntity.setDeleted(deleted);
-            session.beginTransaction();
-            session.update(userHobbyEntity);
-            session.getTransaction().commit();
-        }
+        services.updateUserHobby(user, hobbyEntity, deleted);
 
         return Response.status(Response.Status.OK).build();
     }
@@ -243,7 +195,9 @@ public class UserProfileModule {
     }
 
     private HobbyEntity hobbyNameToEntity(String hobby) {
-        Iterator<HobbyEntity> it = Constants.gHobbiesCache.iterator();
+        HobbyServices hServices = GuiceInstance.getGuiceInjector().getInstance(HobbyServices.class);
+        List<HobbyEntity> hobbyEntities = hServices.getAll();
+        Iterator<HobbyEntity> it = hobbyEntities.iterator();
         while (it.hasNext()) {
             HobbyEntity hobbyEntity = it.next();
             if (hobbyEntity.getHobbyName().equals(hobby)) {
@@ -254,7 +208,9 @@ public class UserProfileModule {
     }
 
     private HobbyEntity hobbyIdToEntity(int id) {
-        Iterator<HobbyEntity> it = Constants.gHobbiesCache.iterator();
+        HobbyServices hServices = GuiceInstance.getGuiceInjector().getInstance(HobbyServices.class);
+        List<HobbyEntity> hobbyEntities = hServices.getAll();
+        Iterator<HobbyEntity> it = hobbyEntities.iterator();
         while (it.hasNext()) {
             HobbyEntity hobbyEntity = it.next();
             if (hobbyEntity.getId() == id) {
@@ -265,7 +221,9 @@ public class UserProfileModule {
     }
 
     private PersonalityEntity personalityNameToEntity(String personality) {
-        Iterator<PersonalityEntity> it = Constants.gPersonalityCache.iterator();
+        PersonalityServices pServices = GuiceInstance.getGuiceInjector().getInstance(PersonalityServices.class);
+        List<PersonalityEntity> personalityEntities = pServices.getAll();
+        Iterator<PersonalityEntity> it = personalityEntities.iterator();
         while (it.hasNext()) {
             PersonalityEntity personalityEntity = it.next();
             if (personalityEntity.getName().equals(personality)) {

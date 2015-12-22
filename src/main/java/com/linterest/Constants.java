@@ -11,7 +11,4 @@ import java.util.List;
 public class Constants {
     public static final String GUEST_NAME = "Guest";
     public static final String GUEST_PASSWORD = "1234567";
-
-    public static List<PersonalityEntity> gPersonalityCache = null;
-    public static List<HobbyEntity> gHobbiesCache = null;
 }
