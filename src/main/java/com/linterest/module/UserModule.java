@@ -2,15 +2,22 @@ package com.linterest.module;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.inject.Guice;
+import com.google.inject.Inject;
 import com.linterest.Constants;
+import com.linterest.GuiceInstance;
 import com.linterest.HibernateUtil;
+import com.linterest.annotation.CacheEnabled;
 import com.linterest.entity.*;
 import com.linterest.error.*;
+import com.linterest.services.UserServices;
 import io.swagger.annotations.*;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.hibernate.Query;
 import org.hibernate.Session;
 
+import javax.inject.Singleton;
+import javax.servlet.http.HttpServlet;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -21,7 +28,7 @@ import java.util.List;
  */
 @Api(value = "User service")
 @Path("/user")
-public class UserService {
+public class UserModule {
 
     @GET
     @Path("/all")

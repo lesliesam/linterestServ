@@ -15,7 +15,9 @@ import com.linterest.error.ServerErrorUserNotFound;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.hibernate.Session;
+import org.hibernate.annotations.Cache;
 
+import javax.persistence.Cacheable;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -28,7 +30,7 @@ import java.util.List;
  */
 @Api(value = "User Profile service")
 @Path("/userProfile")
-public class UserProfileService {
+public class UserProfileModule {
 
     @POST
     @Path("/setGender")
