@@ -2,11 +2,15 @@ package com.linterest.services;
 
 import com.linterest.Constants;
 import com.linterest.HibernateUtil;
+import com.linterest.annotation.CacheEnabled;
+import com.linterest.annotation.UserSession;
 import com.linterest.entity.*;
+import com.linterest.interceptor.UserSessionCacheInterceptor;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.hibernate.Query;
 import org.hibernate.Session;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -38,14 +42,10 @@ public class UserServicesImpl implements UserServices {
         return list;
     }
 
+    @UserSession(type = UserSessionCacheInterceptor.GET)
+    @CacheEnabled
     public List<UserEntity> getUserWithAuthSession(String authSession) {
-        Session session = HibernateUtil.getSessionFactory().openSession();
-        String queryStr = "from UserEntity where session = :session";
-        List<UserEntity> list = session.createQuery(queryStr).
-                setString("session", authSession).list();
-
-        session.close();
-        return list;
+        return new ArrayList<UserEntity>();
     }
 
     public List<UserHobbyEntity> getUserHobby(UserEntity user) {
@@ -114,14 +114,11 @@ public class UserServicesImpl implements UserServices {
         return user;
     }
 
+    @UserSession(type = UserSessionCacheInterceptor.STORE)
+    @CacheEnabled
     public UserEntity updateUserSession(UserEntity user) {
-        Session session = HibernateUtil.getSessionFactory().openSession();
         user.setSession(generateUserSessionStr(user.getUserName(), user.getPassword()));
-        session.beginTransaction();
-        session.update(user);
-        session.getTransaction().commit();
 
-        session.close();
         return user;
     }
 

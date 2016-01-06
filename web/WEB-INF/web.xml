@@ -78,7 +78,7 @@
         </init-param>
         <init-param>
             <param-name>swagger.api.basepath</param-name>
-            <param-value>http://120.55.87.231/Linterest</param-value>
+            <param-value>http://localhost:8090</param-value>
         </init-param>
         <load-on-startup>2</load-on-startup>
     </servlet>

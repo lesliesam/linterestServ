@@ -2,11 +2,13 @@ package com.linterest;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+import com.google.inject.Singleton;
 import com.google.inject.matcher.Matchers;
 import com.google.inject.servlet.GuiceServletContextListener;
 import com.google.inject.servlet.ServletModule;
 import com.linterest.annotation.CacheEnabled;
-import com.linterest.interceptor.CacheInterceptor;
+import com.linterest.annotation.UserSession;
+import com.linterest.interceptor.UserSessionCacheInterceptor;
 import com.linterest.services.*;
 
 /**
@@ -23,10 +25,11 @@ public class GuiceListener extends GuiceServletContextListener {
                 bind(UserServices.class).to(UserServicesImpl.class);
                 bind(PersonalityServices.class).to(PersonalityServicesImpl.class);
                 bind(HobbyServices.class).to(HobbyServicesImpl.class);
+                bind(CacheClientImpl.class).in(Singleton.class);
 
                 bindInterceptor(Matchers.any(),
-                        Matchers.annotatedWith(CacheEnabled.class),
-                        new CacheInterceptor());
+                        Matchers.annotatedWith(CacheEnabled.class).and(Matchers.annotatedWith(UserSession.class)),
+                        new UserSessionCacheInterceptor());
             }
         });
         GuiceInstance.setGuiceInjector(injector);
