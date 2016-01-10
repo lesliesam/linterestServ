@@ -80,11 +80,6 @@ public class UserModule {
                     "ios or android"))).build();
         }
 
-        if (deviceId.length() != 32) {
-            return Response.status(Response.Status.BAD_REQUEST).entity(gson.toJson(new ServerErrorParamInvalid("deviceId",
-                    "a1b27dc3c577446a2bcbd77935bda1b2"))).build();
-        }
-
         UserServices services = GuiceInstance.getGuiceInjector().getInstance(UserServices.class);
         UserEntity user = services.userSignupWithDevice(deviceName, deviceId);
 
