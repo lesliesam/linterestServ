@@ -41,10 +41,9 @@ public class UserSessionCacheInterceptor implements MethodInterceptor {
                 return invocation.proceed();
             }
         } else if (annotation.type().equals(STORE)) {
-            Object[] arguments = invocation.getArguments();
-            UserEntity entity = (UserEntity) arguments[0];
+            UserEntity entity = (UserEntity) invocation.proceed();
             cacheClient.storeUserEntityWithSession(entity.getSession(), entity);
-            return invocation.proceed();
+            return entity;
         }
 
         return null;
