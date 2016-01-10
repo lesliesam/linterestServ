@@ -21,18 +21,6 @@ import java.util.List;
 @Path("/user")
 public class UserModule {
 
-    @GET
-    @Path("/all")
-    @ApiOperation(value = "获取所有用户", notes = "仅仅用于内部测试API")
-    @Produces(MediaType.APPLICATION_JSON)
-    public String getAllUser() {
-        Gson gson = new GsonBuilder().create();
-        UserServices services = GuiceInstance.getGuiceInjector().getInstance(UserServices.class);
-        List<?> list = services.getAllUsers();
-
-        return gson.toJson(list);
-    }
-
     @POST
     @Path("/signup")
     @ApiOperation(value = "用户使用用户名和密码注册", notes = "服务器校验：用户名重名检测，密码校验等")
