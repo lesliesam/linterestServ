@@ -126,33 +126,34 @@ public class UserProfileModule {
 
     @POST
     @Path("/addHobby")
-    @ApiOperation(value = "添加用户兴趣爱好", notes = "除预设兴趣爱好，其他字符串无效")
+    @ApiOperation(value = "添加用户兴趣爱好", notes = "兴趣爱好以逗号分隔，除预设兴趣爱好，其他字符串无效")
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response addHobby(@HeaderParam("authSession") String authSession, @FormParam("hobby") String hobby) {
-        return updateUserHobby(authSession, hobby, false);
+    public Response addHobby(@HeaderParam("authSession") String authSession, @FormParam("hobbies") String hobbies) {
+        return updateUserHobby(authSession, hobbies, false);
     }
 
     @POST
     @Path("/deleteHobby")
-    @ApiOperation(value = "删除用户兴趣爱好", notes = "除预设兴趣爱好，其他字符串无效")
+    @ApiOperation(value = "删除用户兴趣爱好", notes = "兴趣爱好以逗号分隔，除预设兴趣爱好，其他字符串无效")
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response deleteHobby(@HeaderParam("authSession") String authSession, @FormParam("hobby") String hobby) {
-        return updateUserHobby(authSession, hobby, true);
+    public Response deleteHobby(@HeaderParam("authSession") String authSession, @FormParam("hobbies") String hobbies) {
+        return updateUserHobby(authSession, hobbies, true);
     }
 
-    private Response updateUserHobby(String authSession, String hobby, boolean deleted) {
+    private Response updateUserHobby(String authSession, String hobbies, boolean deleted) {
         Gson gson = new GsonBuilder().create();
 
         if (authSession == null || authSession.length() == 0) {
             return Response.status(Response.Status.FORBIDDEN).entity(gson.toJson(new ServerErrorParamEmpty("authSession"))).build();
         }
 
-        if (hobby == null || hobby.length() == 0) {
+        if (hobbies == null || hobbies.length() == 0) {
             return Response.status(Response.Status.BAD_REQUEST).entity(gson.toJson(new ServerErrorParamEmpty("hobby"))).build();
         }
 
+        String[] hobbyArr = hobbies.split(",");
         HobbyServices hServices = GuiceInstance.getGuiceInjector().getInstance(HobbyServices.class);
         List<HobbyEntity> hobbyEntities = hServices.getAll();
 
@@ -162,14 +163,25 @@ public class UserProfileModule {
             return Response.status(Response.Status.BAD_REQUEST).entity(gson.toJson(new ServerErrorUserNotFound())).build();
         }
 
-        HobbyEntity hobbyEntity = hobbyNameToEntity(hobby);
-        if (hobbyEntity == null) {
-            return Response.status(Response.Status.BAD_REQUEST).entity(gson.toJson(new ServerErrorParamInvalid("hobby",
-                    gson.toJson(hobbyEntities)))).build();
+        // Check all before update.
+        for (int i = 0; i < hobbyArr.length; i++) {
+            String hobby = hobbyArr[i];
+
+            HobbyEntity hobbyEntity = hobbyNameToEntity(hobby);
+            if (hobbyEntity == null) {
+                return Response.status(Response.Status.BAD_REQUEST).entity(gson.toJson(new ServerErrorParamInvalid("hobby",
+                        gson.toJson(hobbyEntities)))).build();
+            }
         }
 
+        // Update all.
         UserEntity user = list.get(0);
-        services.updateUserHobby(user, hobbyEntity, deleted);
+        for (int i = 0; i < hobbyArr.length; i++) {
+            String hobby = hobbyArr[i];
+
+            HobbyEntity hobbyEntity = hobbyNameToEntity(hobby);
+            services.updateUserHobby(user, hobbyEntity, deleted);
+        }
 
         return Response.status(Response.Status.OK).build();
     }
