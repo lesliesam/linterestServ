@@ -24,7 +24,7 @@ import java.util.concurrent.TimeoutException;
 public class CacheClientImpl {
 
     private MemcachedClient mClient = null;
-    private static final int USER_SESSION_TIME_OUT = 60;
+    private static final int USER_SESSION_TIME_OUT = 60 * 60 * 24 * 15;
     private static final int OPERATION_TIME = 15;
 
     @Inject
