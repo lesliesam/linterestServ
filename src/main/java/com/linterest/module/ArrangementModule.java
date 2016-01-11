@@ -3,10 +3,7 @@ package com.linterest.module;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.linterest.GuiceInstance;
-import com.linterest.entity.ArrangementEntity;
-import com.linterest.entity.MenuEntity;
-import com.linterest.entity.UserEntity;
-import com.linterest.entity.UserHobbyEntity;
+import com.linterest.entity.*;
 import com.linterest.error.ServerErrorParamEmpty;
 import com.linterest.error.ServerErrorParamInvalid;
 import com.linterest.error.ServerErrorUserNotFound;
@@ -98,7 +95,7 @@ public class ArrangementModule {
 
     @GET
     @Path("/getById/{id}")
-    @ApiOperation(value = "获取可供选择的用餐列表", notes = "按兴趣匹配返回结果")
+    @ApiOperation(value = "获取制定用餐信息", notes = "id是用餐的数据库索引值")
     @Produces(MediaType.APPLICATION_JSON)
     public Response getById(@PathParam("id") String id) {
         Gson gson = new GsonBuilder().create();
@@ -106,7 +103,7 @@ public class ArrangementModule {
         ArrangementServices arrangementServices = GuiceInstance.getGuiceInjector().getInstance(ArrangementServices.class);
         List<ArrangementEntity> list = arrangementServices.getById(id);
         if (list.size() == 0) {
-            return Response.status(Response.Status.BAD_REQUEST).entity(gson.toJson(new ServerErrorParamInvalid("id", "1"))).build();
+            return Response.status(Response.Status.BAD_REQUEST).entity(gson.toJson(new ServerErrorParamInvalid("id", "2"))).build();
         }
 
         return Response.ok().entity(gson.toJson(list.get(0))).build();
@@ -130,9 +127,10 @@ public class ArrangementModule {
         }
 
         UserEntity user = list.get(0);
-        List<UserHobbyEntity> userHobbiesEntityList = services.getUserHobby(user);
+        ArrangementServices arrangementServices = GuiceInstance.getGuiceInjector().getInstance(ArrangementServices.class);
+        List<ArrangementEntity> arrangementList = arrangementServices.getNewByUser(user, 0);
 
-        return Response.ok().build();
+        return Response.ok().entity(gson.toJson(arrangementList)).build();
     }
 
     @POST
@@ -141,7 +139,7 @@ public class ArrangementModule {
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     @Produces(MediaType.APPLICATION_JSON)
     public Response like(@HeaderParam("authSession") String authSession, @FormParam("arrangementId") String arrangementId) {
-        return updateUserLikeArrangement(authSession, arrangementId, false);
+        return updateUserLikeArrangement(authSession, arrangementId, true);
     }
 
     @POST
@@ -150,7 +148,7 @@ public class ArrangementModule {
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     @Produces(MediaType.APPLICATION_JSON)
     public Response unlike(@HeaderParam("authSession") String authSession, @FormParam("arrangementId") String arrangementId) {
-        return updateUserLikeArrangement(authSession, arrangementId, true);
+        return updateUserLikeArrangement(authSession, arrangementId, false);
     }
 
     @GET
@@ -170,7 +168,11 @@ public class ArrangementModule {
             return Response.status(Response.Status.BAD_REQUEST).entity(gson.toJson(new ServerErrorUserNotFound())).build();
         }
 
-        return Response.ok().build();
+        UserEntity user = list.get(0);
+        ArrangementServices arrangementServices = GuiceInstance.getGuiceInjector().getInstance(ArrangementServices.class);
+        List<ArrangementEntity> arrangementList = arrangementServices.getLikedByUser(user);
+
+        return Response.ok().entity(gson.toJson(arrangementList)).build();
     }
 
     @POST
@@ -235,12 +237,20 @@ public class ArrangementModule {
             return Response.status(Response.Status.BAD_REQUEST).entity(gson.toJson(new ServerErrorParamEmpty("arrangementId"))).build();
         }
 
-        UserServices services = GuiceInstance.getGuiceInjector().getInstance(UserServices.class);
-        List<UserEntity> list = services.getUserWithAuthSession(authSession);
-        if (list.size() == 0) {
+        UserServices userServices = GuiceInstance.getGuiceInjector().getInstance(UserServices.class);
+        List<UserEntity> userList = userServices.getUserWithAuthSession(authSession);
+        if (userList.size() == 0) {
             return Response.status(Response.Status.BAD_REQUEST).entity(gson.toJson(new ServerErrorUserNotFound())).build();
         }
 
-        return Response.ok().build();
+        ArrangementServices arrangementServices = GuiceInstance.getGuiceInjector().getInstance(ArrangementServices.class);
+        List<ArrangementEntity> arrangementList = arrangementServices.getById(arrangementId);
+        if (arrangementList.size() == 0) {
+            return Response.status(Response.Status.BAD_REQUEST).entity(gson.toJson(new ServerErrorParamInvalid("arrangementId","2"))).build();
+        }
+
+        UserArrangementLikeEntity likeEntity = arrangementServices.userLikeArrangement(userList.get(0), arrangementList.get(0), like);
+
+        return Response.ok().entity(gson.toJson(likeEntity)).build();
     }
 }

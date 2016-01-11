@@ -1,5 +1,7 @@
 package com.linterest.entity;
 
+import org.hibernate.annotations.Type;
+
 import javax.persistence.*;
 import java.sql.Timestamp;
 
@@ -9,33 +11,34 @@ import java.sql.Timestamp;
 @Entity
 @Table(name = "userArrangementLike", schema = "", catalog = "linterest")
 public class UserArrangementLikeEntity {
-    private int userId;
-    private int arrangementId;
+    private UserEntity user;
+    private ArrangementEntity arrangement;
     private Timestamp updateTime;
     private int id;
+    private Boolean isLike;
+
+    @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @JoinColumn(name = "user_id", nullable = false)
+    public UserEntity getUser() {
+        return user;
+    }
+
+    public void setUser(UserEntity user) {
+        this.user = user;
+    }
+
+    @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @JoinColumn(name = "arrangement_id", nullable = false)
+    public ArrangementEntity getArrangement() {
+        return arrangement;
+    }
+
+    public void setArrangement(ArrangementEntity arrangement) {
+        this.arrangement = arrangement;
+    }
 
     @Basic
-    @Column(name = "user_id")
-    public int getUserId() {
-        return userId;
-    }
-
-    public void setUserId(int userId) {
-        this.userId = userId;
-    }
-
-    @Basic
-    @Column(name = "arrangement_id")
-    public int getArrangementId() {
-        return arrangementId;
-    }
-
-    public void setArrangementId(int arrangementId) {
-        this.arrangementId = arrangementId;
-    }
-
-    @Basic
-    @Column(name = "update_time")
+    @Column(name = "update_time", nullable = false, insertable = true, updatable = true)
     public Timestamp getUpdateTime() {
         return updateTime;
     }
@@ -51,8 +54,8 @@ public class UserArrangementLikeEntity {
 
         UserArrangementLikeEntity that = (UserArrangementLikeEntity) o;
 
-        if (userId != that.userId) return false;
-        if (arrangementId != that.arrangementId) return false;
+        if (user.equals(that.user)) return false;
+        if (arrangement.equals(that.arrangement)) return false;
         if (updateTime != null ? !updateTime.equals(that.updateTime) : that.updateTime != null) return false;
 
         return true;
@@ -60,19 +63,31 @@ public class UserArrangementLikeEntity {
 
     @Override
     public int hashCode() {
-        int result = userId;
-        result = 31 * result + arrangementId;
+        int result = user.hashCode();
+        result = 31 * result + arrangement.hashCode();
         result = 31 * result + (updateTime != null ? updateTime.hashCode() : 0);
         return result;
     }
 
     @Id
-    @Column(name = "id")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id", unique = true, nullable = false, insertable = true, updatable = true)
     public int getId() {
         return id;
     }
 
     public void setId(int id) {
         this.id = id;
+    }
+
+    @Basic
+    @Column(name = "isLike", columnDefinition = "BIT", length = 1, nullable = true, insertable = true, updatable = true)
+    @Type(type = "org.hibernate.type.NumericBooleanType")
+    public boolean getIsLike() {
+        return isLike;
+    }
+
+    public void setIsLike(boolean isLike) {
+        this.isLike = isLike;
     }
 }
