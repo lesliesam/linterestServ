@@ -27,6 +27,7 @@ public class UserEntity {
     private String shareCode;
     private String session;
     private Integer personality;
+    private String displayName;
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -192,5 +193,15 @@ public class UserEntity {
 
     public void setPersonality(Integer personality) {
         this.personality = personality;
+    }
+
+    @Basic
+    @Column(name = "display_name", nullable = true, insertable = true, updatable = true, length = 100)
+    public String getDisplayName() {
+        return displayName;
+    }
+
+    public void setDisplayName(String displayName) {
+        this.displayName = displayName;
     }
 }

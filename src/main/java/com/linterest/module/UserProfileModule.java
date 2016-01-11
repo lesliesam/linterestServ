@@ -142,6 +142,34 @@ public class UserProfileModule {
         return updateUserHobby(authSession, hobbies, true);
     }
 
+    @POST
+    @Path("/setDisplayName")
+    @ApiOperation(value = "设置用户显示的名字")
+    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response setDisplayName(@HeaderParam("authSession") String authSession, @FormParam("displayName") String displayName) {
+        Gson gson = new GsonBuilder().create();
+
+        if (authSession == null || authSession.length() == 0) {
+            return Response.status(Response.Status.FORBIDDEN).entity(gson.toJson(new ServerErrorParamEmpty("authSession"))).build();
+        }
+
+        if (displayName == null || displayName.length() == 0) {
+            return Response.status(Response.Status.BAD_REQUEST).entity(gson.toJson(new ServerErrorParamEmpty("displayName"))).build();
+        }
+
+        UserServices services = GuiceInstance.getGuiceInjector().getInstance(UserServices.class);
+        List<UserEntity> list = services.getUserWithAuthSession(authSession);
+        if (list.size() == 0) {
+            return Response.status(Response.Status.BAD_REQUEST).entity(gson.toJson(new ServerErrorUserNotFound())).build();
+        }
+
+        UserEntity user = list.get(0);
+        services.updateUserDisplayName(user, displayName);
+
+        return Response.status(Response.Status.OK).entity(gson.toJson(user)).build();
+    }
+
     private Response updateUserHobby(String authSession, String hobbies, boolean deleted) {
         Gson gson = new GsonBuilder().create();
 

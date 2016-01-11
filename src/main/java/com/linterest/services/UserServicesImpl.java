@@ -175,6 +175,18 @@ public class UserServicesImpl implements UserServices {
         return user;
     }
 
+    @Override
+    public UserEntity updateUserDisplayName(UserEntity user, String displayName) {
+        Session session = HibernateUtil.getSessionFactory().openSession();
+        user.setDisplayName(displayName);
+        session.beginTransaction();
+        session.update(user);
+        session.getTransaction().commit();
+
+        session.close();
+        return user;
+    }
+
     private String generateUserSessionStr(String userName, String password) {
         String sessionBeforeCrypt = userName + password + System.currentTimeMillis();
         return DigestUtils.md5Hex(sessionBeforeCrypt);

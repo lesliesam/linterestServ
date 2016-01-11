@@ -44,6 +44,7 @@ public class UserModule {
         }
 
         UserEntity user = services.userSignup(userName, password);
+        services.updateUserSession(user);
         return Response.status(Response.Status.OK).entity(gson.toJson(user)).build();
     }
 
@@ -70,6 +71,7 @@ public class UserModule {
 
         UserServices services = GuiceInstance.getGuiceInjector().getInstance(UserServices.class);
         UserEntity user = services.userSignupWithDevice(deviceName, deviceId);
+        services.updateUserSession(user);
 
         return Response.status(Response.Status.OK).entity(gson.toJson(user)).build();
     }
@@ -103,10 +105,5 @@ public class UserModule {
         } else {
             return Response.status(Response.Status.FORBIDDEN).entity(gson.toJson(new ServerErrorPasswordMismatch())).build();
         }
-    }
-
-    private String generateUserSessionStr(String userName, String password) {
-        String sessionBeforeCrypt = userName + password + System.currentTimeMillis();
-        return DigestUtils.md5Hex(sessionBeforeCrypt);
     }
 }
