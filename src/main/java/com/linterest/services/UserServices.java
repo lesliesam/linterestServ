@@ -8,7 +8,6 @@ import java.util.List;
  * @author <a href="mailto:lesliesam@hotmail.com"> Sam Yu </a>
  */
 public interface UserServices {
-    List<UserEntity> getAllUsers();
     List<UserEntity> getUser(String userName);
     List<UserEntity> getUserWithAuthSession(String authSession);
     List<UserHobbyEntity> getUserHobby(UserEntity user);

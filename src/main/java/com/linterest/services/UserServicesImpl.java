@@ -18,18 +18,6 @@ import java.util.List;
  */
 public class UserServicesImpl implements UserServices {
 
-    public List<UserEntity> getAllUsers() {
-        Session session = HibernateUtil.getSessionFactory().openSession();
-
-        String queryUser = "from UserEntity";
-        Query query = session.createQuery(queryUser);
-        query.setMaxResults(10);
-        List<UserEntity> list = query.list();
-
-        session.close();
-        return list;
-    }
-
     public List<UserEntity> getUser(String userName) {
         Session session = HibernateUtil.getSessionFactory().openSession();
 
@@ -64,7 +52,6 @@ public class UserServicesImpl implements UserServices {
         UserEntity user = new UserEntity();
         user.setUserName(userName);
         user.setPassword(password);
-        user.setSession(generateUserSessionStr(userName, password));
 
         session.getTransaction().begin();
         session.persist(user);
@@ -87,7 +74,6 @@ public class UserServicesImpl implements UserServices {
             // Device found.
             UserDeviceIdEntity deviceIdEntity = list.get(0);
             user = deviceIdEntity.getUser();
-            user.setSession(generateUserSessionStr(Constants.GUEST_NAME, Constants.GUEST_PASSWORD));
             session.beginTransaction();
             session.update(user);
             session.getTransaction().commit();
@@ -96,7 +82,6 @@ public class UserServicesImpl implements UserServices {
             user = new UserEntity();
             user.setUserName(Constants.GUEST_NAME);
             user.setPassword(Constants.GUEST_PASSWORD);
-            user.setSession(generateUserSessionStr(Constants.GUEST_NAME, Constants.GUEST_PASSWORD));
 
             UserDeviceIdEntity deviceIdEntity = new UserDeviceIdEntity();
             deviceIdEntity.setDeviceName(deviceName);

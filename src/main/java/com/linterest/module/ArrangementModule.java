@@ -3,11 +3,15 @@ package com.linterest.module;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.linterest.GuiceInstance;
+import com.linterest.entity.ArrangementEntity;
+import com.linterest.entity.MenuEntity;
 import com.linterest.entity.UserEntity;
 import com.linterest.entity.UserHobbyEntity;
 import com.linterest.error.ServerErrorParamEmpty;
 import com.linterest.error.ServerErrorParamInvalid;
 import com.linterest.error.ServerErrorUserNotFound;
+import com.linterest.services.ArrangementServices;
+import com.linterest.services.MenuServices;
 import com.linterest.services.UserServices;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -21,9 +25,9 @@ import java.util.List;
  * @author <a href="mailto:lesliesam@hotmail.com"> Sam Yu </a>
  */
 
-@Api(value = "Dinner Host service")
-@Path("/dinner")
-public class DinnerModule {
+@Api(value = "Arrangement service")
+@Path("/arrangement")
+public class ArrangementModule {
 
     @POST
     @Path("/create")
@@ -72,7 +76,40 @@ public class DinnerModule {
             return Response.status(Response.Status.BAD_REQUEST).entity(gson.toJson(new ServerErrorParamInvalid("price", "Must be >= 0"))).build();
         }
 
-        return Response.status(Response.Status.OK).build();
+        UserServices userServices = GuiceInstance.getGuiceInjector().getInstance(UserServices.class);
+        List<UserEntity> list = userServices.getUserWithAuthSession(authSession);
+        if (list.size() == 0) {
+            return Response.status(Response.Status.BAD_REQUEST).entity(gson.toJson(new ServerErrorUserNotFound())).build();
+        }
+
+        MenuServices menuServices = GuiceInstance.getGuiceInjector().getInstance(MenuServices.class);
+        List<MenuEntity> menuList = menuServices.getById(menuId);
+        if (menuList.size() == 0) {
+            return Response.status(Response.Status.BAD_REQUEST).entity(gson.toJson(new ServerErrorParamInvalid("menuId", "1"))).build();
+        }
+
+        UserEntity user = list.get(0);
+        MenuEntity menu = menuList.get(0);
+        ArrangementServices arrangementServices = GuiceInstance.getGuiceInjector().getInstance(ArrangementServices.class);
+        ArrangementEntity arrangement = arrangementServices.setup(user, theme, tag, price, guestNum, address, images, menu);
+
+        return Response.status(Response.Status.OK).entity(gson.toJson(arrangement)).build();
+    }
+
+    @GET
+    @Path("/getById/{id}")
+    @ApiOperation(value = "获取可供选择的用餐列表", notes = "按兴趣匹配返回结果")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getById(@PathParam("id") String id) {
+        Gson gson = new GsonBuilder().create();
+
+        ArrangementServices arrangementServices = GuiceInstance.getGuiceInjector().getInstance(ArrangementServices.class);
+        List<ArrangementEntity> list = arrangementServices.getById(id);
+        if (list.size() == 0) {
+            return Response.status(Response.Status.BAD_REQUEST).entity(gson.toJson(new ServerErrorParamInvalid("id", "1"))).build();
+        }
+
+        return Response.ok().entity(gson.toJson(list.get(0))).build();
     }
 
     @GET
@@ -99,21 +136,21 @@ public class DinnerModule {
     }
 
     @POST
-    @Path("/likeDinner")
+    @Path("/like")
     @ApiOperation(value = "喜欢此用餐")
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response likeDinner(@HeaderParam("authSession") String authSession, @FormParam("dinnerId") String dinnerId) {
-        return updateUserLikeDinner(authSession, dinnerId, false);
+    public Response like(@HeaderParam("authSession") String authSession, @FormParam("arrangementId") String arrangementId) {
+        return updateUserLikeArrangement(authSession, arrangementId, false);
     }
 
     @POST
-    @Path("/unlikeDinner")
+    @Path("/unlike")
     @ApiOperation(value = "喜欢此用餐")
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response unlikeDinner(@HeaderParam("authSession") String authSession, @FormParam("dinnerId") String dinnerId) {
-        return updateUserLikeDinner(authSession, dinnerId, true);
+    public Response unlike(@HeaderParam("authSession") String authSession, @FormParam("arrangementId") String arrangementId) {
+        return updateUserLikeArrangement(authSession, arrangementId, true);
     }
 
     @GET
@@ -137,11 +174,11 @@ public class DinnerModule {
     }
 
     @POST
-    @Path("/joinDinner")
+    @Path("/join")
     @ApiOperation(value = "加入此用餐")
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response joinDinner(@HeaderParam("authSession") String authSession, @FormParam("dinnerId") String dinnerId,
+    public Response join(@HeaderParam("authSession") String authSession, @FormParam("arrangementId") String arrangementId,
                                @FormParam("isCoreHost") boolean isCoreHost) {
         Gson gson = new GsonBuilder().create();
 
@@ -149,8 +186,8 @@ public class DinnerModule {
             return Response.status(Response.Status.FORBIDDEN).entity(gson.toJson(new ServerErrorParamEmpty("authSession"))).build();
         }
 
-        if (dinnerId == null || dinnerId.length() == 0) {
-            return Response.status(Response.Status.BAD_REQUEST).entity(gson.toJson(new ServerErrorParamEmpty("dinnerId"))).build();
+        if (arrangementId == null || arrangementId.length() == 0) {
+            return Response.status(Response.Status.BAD_REQUEST).entity(gson.toJson(new ServerErrorParamEmpty("arrangementId"))).build();
         }
 
         UserServices services = GuiceInstance.getGuiceInjector().getInstance(UserServices.class);
@@ -163,19 +200,19 @@ public class DinnerModule {
     }
 
     @POST
-    @Path("/quitDinner")
+    @Path("/quit")
     @ApiOperation(value = "退出此用餐")
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response quitDinner(@HeaderParam("authSession") String authSession, @FormParam("dinnerId") String dinnerId) {
+    public Response quit(@HeaderParam("authSession") String authSession, @FormParam("arrangementId") String arrangementId) {
         Gson gson = new GsonBuilder().create();
 
         if (authSession == null || authSession.length() == 0) {
             return Response.status(Response.Status.FORBIDDEN).entity(gson.toJson(new ServerErrorParamEmpty("authSession"))).build();
         }
 
-        if (dinnerId == null || dinnerId.length() == 0) {
-            return Response.status(Response.Status.BAD_REQUEST).entity(gson.toJson(new ServerErrorParamEmpty("dinnerId"))).build();
+        if (arrangementId == null || arrangementId.length() == 0) {
+            return Response.status(Response.Status.BAD_REQUEST).entity(gson.toJson(new ServerErrorParamEmpty("arrangementId"))).build();
         }
 
         UserServices services = GuiceInstance.getGuiceInjector().getInstance(UserServices.class);
@@ -187,15 +224,15 @@ public class DinnerModule {
         return Response.ok().build();
     }
 
-    private Response updateUserLikeDinner(String authSession, String dinnerId, boolean like) {
+    private Response updateUserLikeArrangement(String authSession, String arrangementId, boolean like) {
         Gson gson = new GsonBuilder().create();
 
         if (authSession == null || authSession.length() == 0) {
             return Response.status(Response.Status.FORBIDDEN).entity(gson.toJson(new ServerErrorParamEmpty("authSession"))).build();
         }
 
-        if (dinnerId == null || dinnerId.length() == 0) {
-            return Response.status(Response.Status.BAD_REQUEST).entity(gson.toJson(new ServerErrorParamEmpty("dinnerId"))).build();
+        if (arrangementId == null || arrangementId.length() == 0) {
+            return Response.status(Response.Status.BAD_REQUEST).entity(gson.toJson(new ServerErrorParamEmpty("arrangementId"))).build();
         }
 
         UserServices services = GuiceInstance.getGuiceInjector().getInstance(UserServices.class);

@@ -25,6 +25,8 @@ public class GuiceListener extends GuiceServletContextListener {
                 bind(UserServices.class).to(UserServicesImpl.class);
                 bind(PersonalityServices.class).to(PersonalityServicesImpl.class);
                 bind(HobbyServices.class).to(HobbyServicesImpl.class);
+                bind(ArrangementServices.class).to(ArrangementServicesImpl.class);
+                bind(MenuServices.class).to(MenuServicesImpl.class);
                 bind(CacheClientImpl.class).in(Singleton.class);
 
                 bindInterceptor(Matchers.any(),

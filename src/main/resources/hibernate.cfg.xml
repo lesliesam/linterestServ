@@ -4,7 +4,7 @@
     "http://www.hibernate.org/dtd/hibernate-configuration-3.0.dtd">
 <hibernate-configuration>
   <session-factory>
-    <property name="connection.url">jdbc:mysql://120.55.87.231:3306/linterest</property>
+    <property name="connection.url">jdbc:mysql://120.55.87.231:3306/linterest?useUnicode=true&amp;characterEncoding=utf8</property>
     <property name="connection.driver_class">com.mysql.jdbc.Driver</property>
     <property name="hibernate.connection.provider_class">com.linterest.HibernateUtil</property>
     <property name="hibernate.connection.username">defdc829f36acd566415f5363a03049b</property>

@@ -10,19 +10,24 @@ import java.sql.Timestamp;
 @Table(name = "arrangement", schema = "", catalog = "linterest")
 public class ArrangementEntity {
     private int id;
-    private int hostId;
+    private UserEntity host;
     private Timestamp date;
     private String location;
     private String description;
-    private Integer menuId;
+    private MenuEntity menu;
     private String city;
     private Float latitude;
     private Float longitude;
     private Float price;
     private int statusId;
+    private String theme;
+    private String tag;
+    private Integer guestNum;
+    private String images;
 
     @Id
-    @Column(name = "id")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id", unique = true, nullable = false, insertable = true, updatable = true)
     public int getId() {
         return id;
     }
@@ -31,18 +36,19 @@ public class ArrangementEntity {
         this.id = id;
     }
 
-    @Basic
-    @Column(name = "host_id")
-    public int getHostId() {
-        return hostId;
+
+    @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @JoinColumn(name = "host_id", nullable = false)
+    public UserEntity getHost() {
+        return host;
     }
 
-    public void setHostId(int hostId) {
-        this.hostId = hostId;
+    public void setHost(UserEntity host) {
+        this.host = host;
     }
 
     @Basic
-    @Column(name = "date")
+    @Column(name = "date", nullable = true, insertable = true, updatable = true)
     public Timestamp getDate() {
         return date;
     }
@@ -52,7 +58,7 @@ public class ArrangementEntity {
     }
 
     @Basic
-    @Column(name = "location")
+    @Column(name = "location", nullable = true, insertable = true, updatable = true, length = 100)
     public String getLocation() {
         return location;
     }
@@ -62,7 +68,7 @@ public class ArrangementEntity {
     }
 
     @Basic
-    @Column(name = "description")
+    @Column(name = "description", nullable = true, insertable = true, updatable = true, length = 1000)
     public String getDescription() {
         return description;
     }
@@ -71,18 +77,18 @@ public class ArrangementEntity {
         this.description = description;
     }
 
-    @Basic
-    @Column(name = "menu_id")
-    public Integer getMenuId() {
-        return menuId;
+    @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @JoinColumn(name = "menu_id", nullable = false)
+    public MenuEntity getMenu() {
+        return menu;
     }
 
-    public void setMenuId(Integer menuId) {
-        this.menuId = menuId;
+    public void setMenu(MenuEntity menu) {
+        this.menu = menu;
     }
 
     @Basic
-    @Column(name = "city")
+    @Column(name = "city", nullable = true, insertable = true, updatable = true, length = 20)
     public String getCity() {
         return city;
     }
@@ -92,7 +98,7 @@ public class ArrangementEntity {
     }
 
     @Basic
-    @Column(name = "latitude")
+    @Column(name = "latitude", nullable = true, insertable = true, updatable = true, precision = 0)
     public Float getLatitude() {
         return latitude;
     }
@@ -102,7 +108,7 @@ public class ArrangementEntity {
     }
 
     @Basic
-    @Column(name = "longitude")
+    @Column(name = "longitude", nullable = true, insertable = true, updatable = true, precision = 0)
     public Float getLongitude() {
         return longitude;
     }
@@ -112,7 +118,7 @@ public class ArrangementEntity {
     }
 
     @Basic
-    @Column(name = "price")
+    @Column(name = "price", nullable = true, insertable = true, updatable = true, precision = 0)
     public Float getPrice() {
         return price;
     }
@@ -122,7 +128,7 @@ public class ArrangementEntity {
     }
 
     @Basic
-    @Column(name = "status_id")
+    @Column(name = "status_id", nullable = false, insertable = true, updatable = true)
     public int getStatusId() {
         return statusId;
     }
@@ -139,12 +145,10 @@ public class ArrangementEntity {
         ArrangementEntity that = (ArrangementEntity) o;
 
         if (id != that.id) return false;
-        if (hostId != that.hostId) return false;
         if (statusId != that.statusId) return false;
         if (date != null ? !date.equals(that.date) : that.date != null) return false;
         if (location != null ? !location.equals(that.location) : that.location != null) return false;
         if (description != null ? !description.equals(that.description) : that.description != null) return false;
-        if (menuId != null ? !menuId.equals(that.menuId) : that.menuId != null) return false;
         if (city != null ? !city.equals(that.city) : that.city != null) return false;
         if (latitude != null ? !latitude.equals(that.latitude) : that.latitude != null) return false;
         if (longitude != null ? !longitude.equals(that.longitude) : that.longitude != null) return false;
@@ -156,16 +160,54 @@ public class ArrangementEntity {
     @Override
     public int hashCode() {
         int result = id;
-        result = 31 * result + hostId;
         result = 31 * result + (date != null ? date.hashCode() : 0);
         result = 31 * result + (location != null ? location.hashCode() : 0);
         result = 31 * result + (description != null ? description.hashCode() : 0);
-        result = 31 * result + (menuId != null ? menuId.hashCode() : 0);
         result = 31 * result + (city != null ? city.hashCode() : 0);
         result = 31 * result + (latitude != null ? latitude.hashCode() : 0);
         result = 31 * result + (longitude != null ? longitude.hashCode() : 0);
         result = 31 * result + (price != null ? price.hashCode() : 0);
         result = 31 * result + statusId;
         return result;
+    }
+
+    @Basic
+    @Column(name = "theme", nullable = true, insertable = true, updatable = true, length = 50)
+    public String getTheme() {
+        return theme;
+    }
+
+    public void setTheme(String theme) {
+        this.theme = theme;
+    }
+
+    @Basic
+    @Column(name = "tag", nullable = true, insertable = true, updatable = true, length = 100)
+    public String getTag() {
+        return tag;
+    }
+
+    public void setTag(String tag) {
+        this.tag = tag;
+    }
+
+    @Basic
+    @Column(name = "guest_num", nullable = true, insertable = true, updatable = true)
+    public Integer getGuestNum() {
+        return guestNum;
+    }
+
+    public void setGuestNum(Integer guestNum) {
+        this.guestNum = guestNum;
+    }
+
+    @Basic
+    @Column(name = "images", nullable = true, insertable = true, updatable = true, length = 1000)
+    public String getImages() {
+        return images;
+    }
+
+    public void setImages(String images) {
+        this.images = images;
     }
 }
