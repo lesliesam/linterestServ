@@ -1,6 +1,7 @@
 package com.linterest.utils;
 
 import org.apache.commons.codec.binary.Hex;
+import org.apache.commons.codec.digest.DigestUtils;
 
 import javax.crypto.Cipher;
 import javax.crypto.NoSuchPaddingException;
@@ -17,10 +18,11 @@ public class SecUtil {
     private static byte[] keybytes = { 0x31, 0x32, 0x45, 0x65, 0x36, 0x1a, 0x3d, 0x4c, 0x31, 0x32, 0x45, 0x65, 0x36, 0x1a, 0x3d, 0x4c };
 
     public static void main(String[] args) throws Exception {
-        String e1 = encrypt("L0v3p0g0");
-        System.out.println(e1);
-        String e2 = decrypt(e1);
-        System.out.println(e2);
+//        String e1 = encrypt("L0v3p0g0");
+//        System.out.println(e1);
+//        String e2 = decrypt(e1);
+//        System.out.println(e2);
+        System.out.println(DigestUtils.md5Hex("1234567"));
     }
 
     /**

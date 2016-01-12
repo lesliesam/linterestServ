@@ -99,7 +99,7 @@ public class UserModule {
         }
 
         UserEntity user = list.get(0);
-        if (user.getPassword().equals(password)) {
+        if (user.getPassword().equals(DigestUtils.md5Hex(password))) {
             services.updateUserSession(user);
             return Response.status(Response.Status.OK).entity(gson.toJson(user)).build();
         } else {

@@ -49,6 +49,8 @@ public class UserServicesImpl implements UserServices {
     public UserEntity userSignup(String userName, String password) {
         Session session = HibernateUtil.getSessionFactory().openSession();
 
+        password = DigestUtils.md5Hex(password);
+
         UserEntity user = new UserEntity();
         user.setUserName(userName);
         user.setPassword(password);
@@ -81,7 +83,7 @@ public class UserServicesImpl implements UserServices {
             // Device not found.
             user = new UserEntity();
             user.setUserName(Constants.GUEST_NAME);
-            user.setPassword(Constants.GUEST_PASSWORD);
+            user.setPassword(DigestUtils.md5Hex(Constants.GUEST_PASSWORD));
 
             UserDeviceIdEntity deviceIdEntity = new UserDeviceIdEntity();
             deviceIdEntity.setDeviceName(deviceName);
