@@ -1,9 +1,6 @@
 package com.linterest.services;
 
-import com.linterest.entity.ArrangementEntity;
-import com.linterest.entity.MenuEntity;
-import com.linterest.entity.UserArrangementLikeEntity;
-import com.linterest.entity.UserEntity;
+import com.linterest.entity.*;
 
 import java.util.List;
 
@@ -17,4 +14,6 @@ public interface ArrangementServices {
     List<ArrangementEntity> getNewByUser(UserEntity user, int limit);
     List<ArrangementEntity> getLikedByUser(UserEntity user);
     UserArrangementLikeEntity userLikeArrangement(UserEntity user, ArrangementEntity arrangementEntity, boolean like);
+    ArrangementGuestEntity joinOrQuitArrangement(UserEntity user, ArrangementEntity arrangementEntity, boolean isCoHost, boolean isJoin);
+    List<ArrangementGuestEntity> getAllGuestInArrangement(ArrangementEntity arrangementEntity);
 }

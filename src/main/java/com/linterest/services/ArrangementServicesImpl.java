@@ -1,10 +1,7 @@
 package com.linterest.services;
 
 import com.linterest.HibernateUtil;
-import com.linterest.entity.ArrangementEntity;
-import com.linterest.entity.MenuEntity;
-import com.linterest.entity.UserArrangementLikeEntity;
-import com.linterest.entity.UserEntity;
+import com.linterest.entity.*;
 import org.hibernate.Session;
 
 import java.sql.Timestamp;
@@ -144,5 +141,53 @@ public class ArrangementServicesImpl implements ArrangementServices {
         session.close();
 
         return likeEntity;
+    }
+
+    @Override
+    public ArrangementGuestEntity joinOrQuitArrangement(UserEntity user, ArrangementEntity arrangementEntity, boolean isCoHost, boolean isJoin) {
+        Session session = HibernateUtil.getSessionFactory().openSession();
+
+        String queryStr = "from ArrangementGuestEntity where guestId = :guestId and arrangementId = :arrangementId";
+        List<ArrangementGuestEntity> guestEntityList = session.createQuery(queryStr).
+                setInteger("guestId", user.getId()).
+                setInteger("arrangementId", arrangementEntity.getId()).
+                list();
+
+        ArrangementGuestEntity guestEntity;
+        if (guestEntityList.size() > 0) {
+            guestEntity = guestEntityList.get(0);
+            guestEntity.setDeleted(!isJoin);
+            guestEntity.setIsCoreHost(isCoHost);
+
+            session.beginTransaction();
+            session.update(guestEntity);
+            session.getTransaction().commit();
+        } else {
+            guestEntity = new ArrangementGuestEntity();
+            guestEntity.setDeleted(!isJoin);
+            guestEntity.setArrangementId(arrangementEntity.getId());
+            guestEntity.setGuestId(user.getId());
+            guestEntity.setIsCoreHost(isCoHost);
+
+            session.getTransaction().begin();
+            session.saveOrUpdate(guestEntity);
+            session.getTransaction().commit();
+        }
+
+        session.close();
+        return guestEntity;
+    }
+
+    @Override
+    public List<ArrangementGuestEntity> getAllGuestInArrangement(ArrangementEntity arrangementEntity) {
+        Session session = HibernateUtil.getSessionFactory().openSession();
+
+        String queryStr = "from ArrangementGuestEntity where arrangementId = :arrangementId and deleted = false";
+        List<ArrangementGuestEntity> guestEntityList = session.createQuery(queryStr).
+                setInteger("arrangementId", arrangementEntity.getId()).
+                list();
+
+        session.close();
+        return guestEntityList;
     }
 }

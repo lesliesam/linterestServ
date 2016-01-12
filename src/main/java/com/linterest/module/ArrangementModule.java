@@ -7,7 +7,7 @@ import com.linterest.entity.*;
 import com.linterest.error.ServerErrorAuthFailed;
 import com.linterest.error.ServerErrorParamEmpty;
 import com.linterest.error.ServerErrorParamInvalid;
-import com.linterest.error.ServerErrorUserNotFound;
+import com.linterest.error.ServerErrorWithString;
 import com.linterest.services.ArrangementServices;
 import com.linterest.services.MenuServices;
 import com.linterest.services.UserServices;
@@ -17,6 +17,7 @@ import io.swagger.annotations.ApiOperation;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -185,24 +186,8 @@ public class ArrangementModule {
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     @Produces(MediaType.APPLICATION_JSON)
     public Response join(@HeaderParam("authSession") String authSession, @FormParam("arrangementId") String arrangementId,
-                               @FormParam("isCoreHost") boolean isCoreHost) {
-        Gson gson = new GsonBuilder().create();
-
-        if (authSession == null || authSession.length() == 0) {
-            return Response.status(Response.Status.FORBIDDEN).entity(gson.toJson(new ServerErrorParamEmpty("authSession"))).build();
-        }
-
-        if (arrangementId == null || arrangementId.length() == 0) {
-            return Response.status(Response.Status.BAD_REQUEST).entity(gson.toJson(new ServerErrorParamEmpty("arrangementId"))).build();
-        }
-
-        UserServices services = GuiceInstance.getGuiceInjector().getInstance(UserServices.class);
-        List<UserEntity> list = services.getUserWithAuthSession(authSession);
-        if (list.size() == 0) {
-            return Response.status(Response.Status.BAD_REQUEST).entity(gson.toJson(new ServerErrorAuthFailed())).build();
-        }
-
-        return Response.ok().build();
+                               @FormParam("isCoHost") boolean isCoHost) {
+        return joinOrQuitArrangement(authSession, arrangementId, isCoHost, true);
     }
 
     @POST
@@ -211,14 +196,18 @@ public class ArrangementModule {
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     @Produces(MediaType.APPLICATION_JSON)
     public Response quit(@HeaderParam("authSession") String authSession, @FormParam("arrangementId") String arrangementId) {
+        return joinOrQuitArrangement(authSession, arrangementId, false, false);
+    }
+
+    @GET
+    @Path("/getArrangementGuest/{arrangementId}")
+    @ApiOperation(value = "获取某次用餐的客人列表")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getArrangementGuest(@HeaderParam("authSession") String authSession, @PathParam("arrangementId") String arrangementId) {
         Gson gson = new GsonBuilder().create();
 
         if (authSession == null || authSession.length() == 0) {
             return Response.status(Response.Status.FORBIDDEN).entity(gson.toJson(new ServerErrorParamEmpty("authSession"))).build();
-        }
-
-        if (arrangementId == null || arrangementId.length() == 0) {
-            return Response.status(Response.Status.BAD_REQUEST).entity(gson.toJson(new ServerErrorParamEmpty("arrangementId"))).build();
         }
 
         UserServices services = GuiceInstance.getGuiceInjector().getInstance(UserServices.class);
@@ -227,7 +216,15 @@ public class ArrangementModule {
             return Response.status(Response.Status.BAD_REQUEST).entity(gson.toJson(new ServerErrorAuthFailed())).build();
         }
 
-        return Response.ok().build();
+        ArrangementServices arrangementServices = GuiceInstance.getGuiceInjector().getInstance(ArrangementServices.class);
+        List<ArrangementEntity> arrangementList = arrangementServices.getById(arrangementId);
+        if (arrangementList.size() == 0) {
+            return Response.status(Response.Status.BAD_REQUEST).entity(gson.toJson(new ServerErrorParamInvalid("arrangementId","2"))).build();
+        }
+
+        List<ArrangementGuestEntity> guestEntityList = arrangementServices.getAllGuestInArrangement(arrangementList.get(0));
+
+        return Response.ok().entity(gson.toJson(guestEntityList)).build();
     }
 
     private Response updateUserLikeArrangement(String authSession, String arrangementId, boolean like) {
@@ -256,5 +253,57 @@ public class ArrangementModule {
         UserArrangementLikeEntity likeEntity = arrangementServices.userLikeArrangement(userList.get(0), arrangementList.get(0), like);
 
         return Response.ok().entity(gson.toJson(likeEntity)).build();
+    }
+
+    private Response joinOrQuitArrangement(String authSession, String arrangementId, boolean isCoHost, boolean isJoin) {
+        Gson gson = new GsonBuilder().create();
+
+        if (authSession == null || authSession.length() == 0) {
+            return Response.status(Response.Status.FORBIDDEN).entity(gson.toJson(new ServerErrorParamEmpty("authSession"))).build();
+        }
+
+        if (arrangementId == null || arrangementId.length() == 0) {
+            return Response.status(Response.Status.BAD_REQUEST).entity(gson.toJson(new ServerErrorParamEmpty("arrangementId"))).build();
+        }
+
+        UserServices services = GuiceInstance.getGuiceInjector().getInstance(UserServices.class);
+        List<UserEntity> list = services.getUserWithAuthSession(authSession);
+        if (list.size() == 0) {
+            return Response.status(Response.Status.BAD_REQUEST).entity(gson.toJson(new ServerErrorAuthFailed())).build();
+        }
+
+        ArrangementServices arrangementServices = GuiceInstance.getGuiceInjector().getInstance(ArrangementServices.class);
+        List<ArrangementEntity> arrangementList = arrangementServices.getById(arrangementId);
+        if (arrangementList.size() == 0) {
+            return Response.status(Response.Status.BAD_REQUEST).entity(gson.toJson(new ServerErrorParamInvalid("arrangementId","2"))).build();
+        }
+
+        UserEntity user = list.get(0);
+        ArrangementEntity arrangementEntity = arrangementList.get(0);
+
+        List<ArrangementGuestEntity> guestEntityList = arrangementServices.getAllGuestInArrangement(arrangementEntity);
+        if (guestEntityList.size() >= arrangementEntity.getGuestNum()) {
+            return Response.status(Response.Status.BAD_REQUEST).entity(gson.toJson(new ServerErrorWithString("Arrangement is full"))).build();
+        }
+
+        if (isCoHost) {
+            boolean isThereACoHostExist = false;
+            Iterator<ArrangementGuestEntity> iterator = guestEntityList.iterator();
+            while (iterator.hasNext()) {
+                ArrangementGuestEntity guestEntity = iterator.next();
+                if (guestEntity.getIsCoreHost()) {
+                    isThereACoHostExist = true;
+                    break;
+                }
+            }
+
+            if (isThereACoHostExist) {
+                return Response.status(Response.Status.BAD_REQUEST).entity(gson.toJson(new ServerErrorWithString("Arrangement already has a cohost."))).build();
+            }
+        }
+
+        ArrangementGuestEntity guestEntity = arrangementServices.joinOrQuitArrangement(user, arrangementEntity, isCoHost, isJoin);
+
+        return Response.ok().entity(gson.toJson(guestEntity)).build();
     }
 }
