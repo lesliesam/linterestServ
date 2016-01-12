@@ -3,6 +3,7 @@ package com.linterest.module;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.linterest.GuiceInstance;
+import com.linterest.dto.UserPublicInfo;
 import com.linterest.entity.*;
 import com.linterest.error.*;
 import com.linterest.services.UserServices;
@@ -105,5 +106,33 @@ public class UserModule {
         } else {
             return Response.status(Response.Status.FORBIDDEN).entity(gson.toJson(new ServerErrorPasswordMismatch())).build();
         }
+    }
+
+    @GET
+    @Path("/getUserPublicInfo/{userId}")
+    @ApiOperation(value = "获取用户公开信息")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getUserPublicInfo(@HeaderParam("authSession") String authSession, @PathParam("userId") int userId) {
+        Gson gson = new GsonBuilder().create();
+
+        if (authSession == null || authSession.length() == 0) {
+            return Response.status(Response.Status.FORBIDDEN).entity(gson.toJson(new ServerErrorParamEmpty("authSession"))).build();
+        }
+
+        UserServices services = GuiceInstance.getGuiceInjector().getInstance(UserServices.class);
+        List<UserEntity> list = services.getUserWithAuthSession(authSession);
+        if (list.size() == 0) {
+            return Response.status(Response.Status.BAD_REQUEST).entity(gson.toJson(new ServerErrorAuthFailed())).build();
+        }
+
+        list = services.getUser(userId);
+        if (list.size() == 0) {
+            return Response.status(Response.Status.BAD_REQUEST).entity(gson.toJson(new ServerErrorUserNotFound())).build();
+        }
+
+        UserEntity user = list.get(0);
+        UserPublicInfo userPublicInfo = new UserPublicInfo(user);
+
+        return Response.ok().entity(gson.toJson(userPublicInfo)).build();
     }
 }

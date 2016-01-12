@@ -18,6 +18,19 @@ import java.util.List;
  */
 public class UserServicesImpl implements UserServices {
 
+    @Override
+    public List<UserEntity> getUser(int userId) {
+        Session session = HibernateUtil.getSessionFactory().openSession();
+
+        String queryStr = "from UserEntity where id = :userId";
+        List<UserEntity> list = session.createQuery(queryStr).
+                setInteger("userId", userId).
+                list();
+
+        session.close();
+        return list;
+    }
+
     public List<UserEntity> getUser(String userName) {
         Session session = HibernateUtil.getSessionFactory().openSession();
 

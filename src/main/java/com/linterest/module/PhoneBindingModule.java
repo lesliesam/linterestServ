@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.linterest.GuiceInstance;
 import com.linterest.entity.UserEntity;
+import com.linterest.error.ServerErrorAuthFailed;
 import com.linterest.error.ServerErrorParamEmpty;
 import com.linterest.error.ServerErrorUserNotFound;
 import com.linterest.error.ServerErrorValidationCodeError;
@@ -70,7 +71,7 @@ public class PhoneBindingModule {
         UserServices services = GuiceInstance.getGuiceInjector().getInstance(UserServices.class);
         List<UserEntity> list = services.getUserWithAuthSession(authSession);
         if (list.size() == 0) {
-            return Response.status(Response.Status.BAD_REQUEST).entity(gson.toJson(new ServerErrorUserNotFound())).build();
+            return Response.status(Response.Status.BAD_REQUEST).entity(gson.toJson(new ServerErrorAuthFailed())).build();
         }
 
         UserEntity user = list.get(0);

@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.linterest.GuiceInstance;
 import com.linterest.entity.*;
+import com.linterest.error.ServerErrorAuthFailed;
 import com.linterest.error.ServerErrorParamEmpty;
 import com.linterest.error.ServerErrorParamInvalid;
 import com.linterest.error.ServerErrorUserNotFound;
@@ -79,7 +80,7 @@ public class ArrangementModule {
         UserServices userServices = GuiceInstance.getGuiceInjector().getInstance(UserServices.class);
         List<UserEntity> list = userServices.getUserWithAuthSession(authSession);
         if (list.size() == 0) {
-            return Response.status(Response.Status.BAD_REQUEST).entity(gson.toJson(new ServerErrorUserNotFound())).build();
+            return Response.status(Response.Status.BAD_REQUEST).entity(gson.toJson(new ServerErrorAuthFailed())).build();
         }
 
         MenuServices menuServices = GuiceInstance.getGuiceInjector().getInstance(MenuServices.class);
@@ -126,7 +127,7 @@ public class ArrangementModule {
         UserServices services = GuiceInstance.getGuiceInjector().getInstance(UserServices.class);
         List<UserEntity> list = services.getUserWithAuthSession(authSession);
         if (list.size() == 0) {
-            return Response.status(Response.Status.BAD_REQUEST).entity(gson.toJson(new ServerErrorUserNotFound())).build();
+            return Response.status(Response.Status.BAD_REQUEST).entity(gson.toJson(new ServerErrorAuthFailed())).build();
         }
 
         UserEntity user = list.get(0);
@@ -168,7 +169,7 @@ public class ArrangementModule {
         UserServices services = GuiceInstance.getGuiceInjector().getInstance(UserServices.class);
         List<UserEntity> list = services.getUserWithAuthSession(authSession);
         if (list.size() == 0) {
-            return Response.status(Response.Status.BAD_REQUEST).entity(gson.toJson(new ServerErrorUserNotFound())).build();
+            return Response.status(Response.Status.BAD_REQUEST).entity(gson.toJson(new ServerErrorAuthFailed())).build();
         }
 
         UserEntity user = list.get(0);
@@ -198,7 +199,7 @@ public class ArrangementModule {
         UserServices services = GuiceInstance.getGuiceInjector().getInstance(UserServices.class);
         List<UserEntity> list = services.getUserWithAuthSession(authSession);
         if (list.size() == 0) {
-            return Response.status(Response.Status.BAD_REQUEST).entity(gson.toJson(new ServerErrorUserNotFound())).build();
+            return Response.status(Response.Status.BAD_REQUEST).entity(gson.toJson(new ServerErrorAuthFailed())).build();
         }
 
         return Response.ok().build();
@@ -223,7 +224,7 @@ public class ArrangementModule {
         UserServices services = GuiceInstance.getGuiceInjector().getInstance(UserServices.class);
         List<UserEntity> list = services.getUserWithAuthSession(authSession);
         if (list.size() == 0) {
-            return Response.status(Response.Status.BAD_REQUEST).entity(gson.toJson(new ServerErrorUserNotFound())).build();
+            return Response.status(Response.Status.BAD_REQUEST).entity(gson.toJson(new ServerErrorAuthFailed())).build();
         }
 
         return Response.ok().build();
@@ -243,7 +244,7 @@ public class ArrangementModule {
         UserServices userServices = GuiceInstance.getGuiceInjector().getInstance(UserServices.class);
         List<UserEntity> userList = userServices.getUserWithAuthSession(authSession);
         if (userList.size() == 0) {
-            return Response.status(Response.Status.BAD_REQUEST).entity(gson.toJson(new ServerErrorUserNotFound())).build();
+            return Response.status(Response.Status.BAD_REQUEST).entity(gson.toJson(new ServerErrorAuthFailed())).build();
         }
 
         ArrangementServices arrangementServices = GuiceInstance.getGuiceInjector().getInstance(ArrangementServices.class);
