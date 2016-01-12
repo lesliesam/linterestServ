@@ -12,7 +12,7 @@ import java.util.List;
  */
 public interface ArrangementServices {
 
-    ArrangementEntity setup(UserEntity host, String theme, String tag, float price, int guestNum, String address, String images, MenuEntity menu);
+    ArrangementEntity setup(UserEntity host, String theme, String tag, float price, int guestNum, String address, float latitude, float longitude, String images, String facilities, MenuEntity menu);
     List<ArrangementEntity> getById(String id);
     List<ArrangementEntity> getNewByUser(UserEntity user, int limit);
     List<ArrangementEntity> getLikedByUser(UserEntity user);

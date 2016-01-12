@@ -20,7 +20,10 @@ public class ArrangementServicesImpl implements ArrangementServices {
     public static final int  MAX_RESULT_NUM = 20;
 
     @Override
-    public ArrangementEntity setup(UserEntity host, String theme, String tag, float price, int guestNum, String address, String images, MenuEntity menu) {
+    public ArrangementEntity setup(UserEntity host, String theme, String tag, float price, int guestNum, String address, float latitude, float longitude, String images, String facilities, MenuEntity menu) {
+        if (facilities == null) {
+            facilities = "";
+        }
         ArrangementEntity arrangement = new ArrangementEntity();
         arrangement.setHost(host);
         arrangement.setTheme(theme);
@@ -28,8 +31,11 @@ public class ArrangementServicesImpl implements ArrangementServices {
         arrangement.setPrice(price);
         arrangement.setGuestNum(guestNum);
         arrangement.setLocation(address);
+        arrangement.setLatitude(latitude);
+        arrangement.setLongitude(longitude);
         arrangement.setImages(images);
         arrangement.setMenu(menu);
+        arrangement.setFacilities(facilities);
 
         Session session = HibernateUtil.getSessionFactory().openSession();
 

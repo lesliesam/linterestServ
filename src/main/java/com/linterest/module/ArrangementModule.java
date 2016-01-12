@@ -28,7 +28,7 @@ public class ArrangementModule {
 
     @POST
     @Path("/create")
-    @ApiOperation(value = "设置创建饭局")
+    @ApiOperation(value = "设置创建饭局", notes = "facilities用逗号分割，可以是TV,wifi,carParking,Photograph")
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     @Produces(MediaType.APPLICATION_JSON)
     public Response create(@FormParam("authSession") String authSession,
@@ -38,6 +38,9 @@ public class ArrangementModule {
                            @FormParam("price") int price,
                            @FormParam("guestNum") int guestNum,
                            @FormParam("address") String address,
+                           @FormParam("latitude") float latitude,
+                           @FormParam("longitude") float longitude,
+                           @FormParam("facilities") String facilities,
                            @FormParam("images") String images) {
         Gson gson = new GsonBuilder().create();
 
@@ -88,7 +91,7 @@ public class ArrangementModule {
         UserEntity user = list.get(0);
         MenuEntity menu = menuList.get(0);
         ArrangementServices arrangementServices = GuiceInstance.getGuiceInjector().getInstance(ArrangementServices.class);
-        ArrangementEntity arrangement = arrangementServices.setup(user, theme, tag, price, guestNum, address, images, menu);
+        ArrangementEntity arrangement = arrangementServices.setup(user, theme, tag, price, guestNum, address, latitude, longitude, images, facilities, menu);
 
         return Response.status(Response.Status.OK).entity(gson.toJson(arrangement)).build();
     }

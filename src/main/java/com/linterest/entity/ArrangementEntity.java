@@ -24,6 +24,7 @@ public class ArrangementEntity {
     private String tag;
     private Integer guestNum;
     private String images;
+    private String facilities;
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -35,7 +36,6 @@ public class ArrangementEntity {
     public void setId(int id) {
         this.id = id;
     }
-
 
     @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JoinColumn(name = "host_id", nullable = false)
@@ -209,5 +209,15 @@ public class ArrangementEntity {
 
     public void setImages(String images) {
         this.images = images;
+    }
+
+    @Basic
+    @Column(name = "facilities", nullable = true, insertable = true, updatable = true, length = 200)
+    public String getFacilities() {
+        return facilities;
+    }
+
+    public void setFacilities(String facilities) {
+        this.facilities = facilities;
     }
 }
