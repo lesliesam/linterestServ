@@ -25,6 +25,7 @@ public class CacheClientImpl {
 
     private MemcachedClient mClient = null;
     private static final int USER_SESSION_TIME_OUT = 60 * 60 * 24 * 15;
+    private static final int PHONE_NUM_VALIDATION_CODE_TIME_OUT = 60 * 60;
     private static final int OPERATION_TIME = 15;
 
     @Inject
@@ -72,5 +73,31 @@ public class CacheClientImpl {
         }
 
         return entity;
+    }
+
+    public void storeValidationCodeWithPhoneNum(String phoneNum, String validationCode) {
+        OperationFuture future = getClient().set(phoneNum, PHONE_NUM_VALIDATION_CODE_TIME_OUT, validationCode);
+        try {
+            future.get(OPERATION_TIME, TimeUnit.SECONDS);
+        } catch (InterruptedException | ExecutionException | TimeoutException e) {
+            e.printStackTrace();
+            future.cancel();
+        }
+    }
+
+    public String getValidationCodeWithPhoneNum(String phoneNum) {
+        OperationFuture<CASValue<Object>> future =  getClient().asyncGetAndTouch(phoneNum, PHONE_NUM_VALIDATION_CODE_TIME_OUT);
+        String validationCode = null;
+        try {
+            CASValue<Object> value = future.get(OPERATION_TIME, TimeUnit.SECONDS);
+            if (value != null) {
+                validationCode = (String) value.getValue();
+            }
+        } catch (InterruptedException | ExecutionException | TimeoutException e) {
+            e.printStackTrace();
+            future.cancel();
+        }
+
+        return validationCode;
     }
 }

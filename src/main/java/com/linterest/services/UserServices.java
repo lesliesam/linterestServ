@@ -18,4 +18,5 @@ public interface UserServices {
     UserEntity updateUserPersonality(UserEntity user, PersonalityEntity personality);
     UserEntity updateUserHobby(UserEntity user, HobbyEntity hobby, boolean deleted);
     UserEntity updateUserDisplayName(UserEntity user, String displayName);
+    UserEntity updatePhoneNumber(UserEntity user, String phoneNumber);
 }
