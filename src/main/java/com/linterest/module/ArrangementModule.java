@@ -135,6 +135,14 @@ public class ArrangementModule {
         ArrangementServices arrangementServices = GuiceInstance.getGuiceInjector().getInstance(ArrangementServices.class);
         List<ArrangementEntity> arrangementList = arrangementServices.getNewByUser(user, 0);
 
+        // 删除自己创建的
+        for (int i = arrangementList.size() - 1; i >= 0 ; i--) {
+            ArrangementEntity arrangement = arrangementList.get(i);
+            if (arrangement.getHost().equals(user)) {
+                arrangementList.remove(i);
+            }
+        }
+
         return Response.ok().entity(gson.toJson(arrangementList)).build();
     }
 
@@ -250,7 +258,14 @@ public class ArrangementModule {
             return Response.status(Response.Status.BAD_REQUEST).entity(gson.toJson(new ServerErrorParamInvalid("arrangementId","2"))).build();
         }
 
-        UserArrangementLikeEntity likeEntity = arrangementServices.userLikeArrangement(userList.get(0), arrangementList.get(0), like);
+        UserEntity user = userList.get(0);
+        ArrangementEntity arrangement = arrangementList.get(0);
+
+        if (arrangement.getHost().equals(user)) {
+            return Response.status(Response.Status.BAD_REQUEST).entity(gson.toJson(new ServerErrorWithString("Cannot like yourselves arrangement."))).build();
+        }
+
+        UserArrangementLikeEntity likeEntity = arrangementServices.userLikeArrangement(userList.get(0), arrangement, like);
 
         return Response.ok().entity(gson.toJson(likeEntity)).build();
     }
@@ -279,10 +294,14 @@ public class ArrangementModule {
         }
 
         UserEntity user = list.get(0);
-        ArrangementEntity arrangementEntity = arrangementList.get(0);
+        ArrangementEntity arrangement = arrangementList.get(0);
+
+        if (arrangement.getHost().equals(user)) {
+            return Response.status(Response.Status.BAD_REQUEST).entity(gson.toJson(new ServerErrorWithString("Cannot join yourselves arrangement."))).build();
+        }
 
         if (isJoin) {
-            List<ArrangementGuestEntity> guestEntityList = arrangementServices.getAllGuestInArrangement(arrangementEntity);
+            List<ArrangementGuestEntity> guestEntityList = arrangementServices.getAllGuestInArrangement(arrangement);
 
             int currentGuestNum = 0;
             boolean isThereACoHostExist = false;
@@ -295,7 +314,7 @@ public class ArrangementModule {
                 }
             }
 
-            if (currentGuestNum + guestNum > arrangementEntity.getGuestNum()) {
+            if (currentGuestNum + guestNum > arrangement.getGuestNum()) {
                 return Response.status(Response.Status.BAD_REQUEST).entity(gson.toJson(new ServerErrorWithString("Arrangement does not has enough seat available."))).build();
             }
 
@@ -304,7 +323,7 @@ public class ArrangementModule {
             }
         }
 
-        ArrangementGuestEntity guestEntity = arrangementServices.joinOrQuitArrangement(user, arrangementEntity, guestNum, isCoHost, isJoin);
+        ArrangementGuestEntity guestEntity = arrangementServices.joinOrQuitArrangement(user, arrangement, guestNum, isCoHost, isJoin);
 
         return Response.ok().entity(gson.toJson(guestEntity)).build();
     }
