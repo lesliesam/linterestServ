@@ -14,8 +14,8 @@ public class ArrangementGuestEntity {
     private int guestId;
     private boolean isCoreHost;
     private int id;
-    private boolean deleted;
     private int guestNum;
+    private int orderStatus;
 
     @Basic
     @Column(name = "arrangement_id")
@@ -80,17 +80,6 @@ public class ArrangementGuestEntity {
     }
 
     @Basic
-    @Column(name = "deleted", columnDefinition = "BIT", length = 1)
-    @Type(type = "org.hibernate.type.NumericBooleanType")
-    public boolean getDeleted() {
-        return deleted;
-    }
-
-    public void setDeleted(boolean deleted) {
-        this.deleted = deleted;
-    }
-
-    @Basic
     @Column(name = "guest_num", nullable = false, insertable = true, updatable = true)
     public int getGuestNum() {
         return guestNum;
@@ -98,5 +87,15 @@ public class ArrangementGuestEntity {
 
     public void setGuestNum(int guestNum) {
         this.guestNum = guestNum;
+    }
+
+    @Basic
+    @Column(name = "order_status", nullable = false, insertable = true, updatable = true)
+    public int getOrderStatus() {
+        return orderStatus;
+    }
+
+    public void setOrderStatus(int orderStatus) {
+        this.orderStatus = orderStatus;
     }
 }

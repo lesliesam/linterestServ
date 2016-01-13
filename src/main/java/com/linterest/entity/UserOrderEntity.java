@@ -13,10 +13,8 @@ public class UserOrderEntity {
     private int arrangementId;
     private Timestamp createTime;
     private Timestamp payTime;
-    private int typeId;
     private String paymentCode;
     private int id;
-    private int statusId;
 
     @Basic
     @Column(name = "user_id")
@@ -59,16 +57,6 @@ public class UserOrderEntity {
     }
 
     @Basic
-    @Column(name = "type_id")
-    public int getTypeId() {
-        return typeId;
-    }
-
-    public void setTypeId(int typeId) {
-        this.typeId = typeId;
-    }
-
-    @Basic
     @Column(name = "payment_code")
     public String getPaymentCode() {
         return paymentCode;
@@ -87,7 +75,6 @@ public class UserOrderEntity {
 
         if (userId != that.userId) return false;
         if (arrangementId != that.arrangementId) return false;
-        if (typeId != that.typeId) return false;
         if (createTime != null ? !createTime.equals(that.createTime) : that.createTime != null) return false;
         if (payTime != null ? !payTime.equals(that.payTime) : that.payTime != null) return false;
         if (paymentCode != null ? !paymentCode.equals(that.paymentCode) : that.paymentCode != null) return false;
@@ -101,7 +88,6 @@ public class UserOrderEntity {
         result = 31 * result + arrangementId;
         result = 31 * result + (createTime != null ? createTime.hashCode() : 0);
         result = 31 * result + (payTime != null ? payTime.hashCode() : 0);
-        result = 31 * result + typeId;
         result = 31 * result + (paymentCode != null ? paymentCode.hashCode() : 0);
         return result;
     }
@@ -114,15 +100,5 @@ public class UserOrderEntity {
 
     public void setId(int id) {
         this.id = id;
-    }
-
-    @Basic
-    @Column(name = "status_id")
-    public int getStatusId() {
-        return statusId;
-    }
-
-    public void setStatusId(int statusId) {
-        this.statusId = statusId;
     }
 }

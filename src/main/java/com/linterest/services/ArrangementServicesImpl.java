@@ -1,5 +1,6 @@
 package com.linterest.services;
 
+import com.linterest.Constants;
 import com.linterest.HibernateUtil;
 import com.linterest.entity.*;
 import org.hibernate.Session;
@@ -156,7 +157,7 @@ public class ArrangementServicesImpl implements ArrangementServices {
         ArrangementGuestEntity guestEntity;
         if (guestEntityList.size() > 0) {
             guestEntity = guestEntityList.get(0);
-            guestEntity.setDeleted(!isJoin);
+            guestEntity.setOrderStatus(isJoin ? Constants.PAYMENT_OPENED : Constants.PAYMENT_CANCELLED);
             guestEntity.setIsCoreHost(isCoHost);
             guestEntity.setGuestNum(guestNum);
 
@@ -165,7 +166,7 @@ public class ArrangementServicesImpl implements ArrangementServices {
             session.getTransaction().commit();
         } else {
             guestEntity = new ArrangementGuestEntity();
-            guestEntity.setDeleted(!isJoin);
+            guestEntity.setOrderStatus(isJoin ? Constants.PAYMENT_OPENED : Constants.PAYMENT_CANCELLED);
             guestEntity.setArrangementId(arrangementEntity.getId());
             guestEntity.setGuestId(user.getId());
             guestEntity.setIsCoreHost(isCoHost);
@@ -184,9 +185,10 @@ public class ArrangementServicesImpl implements ArrangementServices {
     public List<ArrangementGuestEntity> getAllGuestInArrangement(ArrangementEntity arrangementEntity) {
         Session session = HibernateUtil.getSessionFactory().openSession();
 
-        String queryStr = "from ArrangementGuestEntity where arrangementId = :arrangementId and deleted = false";
+        String queryStr = "from ArrangementGuestEntity where arrangementId = :arrangementId and orderStatus != :orderStatus";
         List<ArrangementGuestEntity> guestEntityList = session.createQuery(queryStr).
                 setInteger("arrangementId", arrangementEntity.getId()).
+                setInteger("orderStatus", Constants.PAYMENT_CANCELLED).
                 list();
 
         session.close();
