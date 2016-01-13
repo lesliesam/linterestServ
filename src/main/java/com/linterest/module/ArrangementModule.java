@@ -100,7 +100,7 @@ public class ArrangementModule {
 
     @GET
     @Path("/getById/{id}")
-    @ApiOperation(value = "获取制定用餐信息", notes = "id是用餐的数据库索引值")
+    @ApiOperation(value = "获取某次用餐信息", notes = "id是用餐的数据库索引值")
     @Produces(MediaType.APPLICATION_JSON)
     public Response getById(@PathParam("id") String id) {
         Gson gson = new GsonBuilder().create();
@@ -186,8 +186,8 @@ public class ArrangementModule {
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     @Produces(MediaType.APPLICATION_JSON)
     public Response join(@HeaderParam("authSession") String authSession, @FormParam("arrangementId") String arrangementId,
-                               @FormParam("isCoHost") boolean isCoHost) {
-        return joinOrQuitArrangement(authSession, arrangementId, isCoHost, true);
+                               @FormParam("guestNum") int guestNum, @FormParam("isCoHost") boolean isCoHost) {
+        return joinOrQuitArrangement(authSession, arrangementId, guestNum, isCoHost, true);
     }
 
     @POST
@@ -196,7 +196,7 @@ public class ArrangementModule {
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     @Produces(MediaType.APPLICATION_JSON)
     public Response quit(@HeaderParam("authSession") String authSession, @FormParam("arrangementId") String arrangementId) {
-        return joinOrQuitArrangement(authSession, arrangementId, false, false);
+        return joinOrQuitArrangement(authSession, arrangementId, 0, false, false);
     }
 
     @GET
@@ -255,7 +255,7 @@ public class ArrangementModule {
         return Response.ok().entity(gson.toJson(likeEntity)).build();
     }
 
-    private Response joinOrQuitArrangement(String authSession, String arrangementId, boolean isCoHost, boolean isJoin) {
+    private Response joinOrQuitArrangement(String authSession, String arrangementId, int guestNum, boolean isCoHost, boolean isJoin) {
         Gson gson = new GsonBuilder().create();
 
         if (authSession == null || authSession.length() == 0) {
@@ -281,28 +281,30 @@ public class ArrangementModule {
         UserEntity user = list.get(0);
         ArrangementEntity arrangementEntity = arrangementList.get(0);
 
-        List<ArrangementGuestEntity> guestEntityList = arrangementServices.getAllGuestInArrangement(arrangementEntity);
-        if (guestEntityList.size() >= arrangementEntity.getGuestNum()) {
-            return Response.status(Response.Status.BAD_REQUEST).entity(gson.toJson(new ServerErrorWithString("Arrangement is full"))).build();
-        }
+        if (isJoin) {
+            List<ArrangementGuestEntity> guestEntityList = arrangementServices.getAllGuestInArrangement(arrangementEntity);
 
-        if (isCoHost) {
+            int currentGuestNum = 0;
             boolean isThereACoHostExist = false;
             Iterator<ArrangementGuestEntity> iterator = guestEntityList.iterator();
             while (iterator.hasNext()) {
                 ArrangementGuestEntity guestEntity = iterator.next();
+                currentGuestNum += guestEntity.getGuestNum();
                 if (guestEntity.getIsCoreHost()) {
                     isThereACoHostExist = true;
-                    break;
                 }
             }
 
-            if (isThereACoHostExist) {
+            if (currentGuestNum + guestNum > arrangementEntity.getGuestNum()) {
+                return Response.status(Response.Status.BAD_REQUEST).entity(gson.toJson(new ServerErrorWithString("Arrangement does not has enough seat available."))).build();
+            }
+
+            if (isCoHost && isThereACoHostExist) {
                 return Response.status(Response.Status.BAD_REQUEST).entity(gson.toJson(new ServerErrorWithString("Arrangement already has a cohost."))).build();
             }
         }
 
-        ArrangementGuestEntity guestEntity = arrangementServices.joinOrQuitArrangement(user, arrangementEntity, isCoHost, isJoin);
+        ArrangementGuestEntity guestEntity = arrangementServices.joinOrQuitArrangement(user, arrangementEntity, guestNum, isCoHost, isJoin);
 
         return Response.ok().entity(gson.toJson(guestEntity)).build();
     }

@@ -14,6 +14,6 @@ public interface ArrangementServices {
     List<ArrangementEntity> getNewByUser(UserEntity user, int limit);
     List<ArrangementEntity> getLikedByUser(UserEntity user);
     UserArrangementLikeEntity userLikeArrangement(UserEntity user, ArrangementEntity arrangementEntity, boolean like);
-    ArrangementGuestEntity joinOrQuitArrangement(UserEntity user, ArrangementEntity arrangementEntity, boolean isCoHost, boolean isJoin);
+    ArrangementGuestEntity joinOrQuitArrangement(UserEntity user, ArrangementEntity arrangementEntity, int guestNum, boolean isCoHost, boolean isJoin);
     List<ArrangementGuestEntity> getAllGuestInArrangement(ArrangementEntity arrangementEntity);
 }

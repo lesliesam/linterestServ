@@ -144,7 +144,7 @@ public class ArrangementServicesImpl implements ArrangementServices {
     }
 
     @Override
-    public ArrangementGuestEntity joinOrQuitArrangement(UserEntity user, ArrangementEntity arrangementEntity, boolean isCoHost, boolean isJoin) {
+    public ArrangementGuestEntity joinOrQuitArrangement(UserEntity user, ArrangementEntity arrangementEntity, int guestNum, boolean isCoHost, boolean isJoin) {
         Session session = HibernateUtil.getSessionFactory().openSession();
 
         String queryStr = "from ArrangementGuestEntity where guestId = :guestId and arrangementId = :arrangementId";
@@ -158,6 +158,7 @@ public class ArrangementServicesImpl implements ArrangementServices {
             guestEntity = guestEntityList.get(0);
             guestEntity.setDeleted(!isJoin);
             guestEntity.setIsCoreHost(isCoHost);
+            guestEntity.setGuestNum(guestNum);
 
             session.beginTransaction();
             session.update(guestEntity);
@@ -168,6 +169,7 @@ public class ArrangementServicesImpl implements ArrangementServices {
             guestEntity.setArrangementId(arrangementEntity.getId());
             guestEntity.setGuestId(user.getId());
             guestEntity.setIsCoreHost(isCoHost);
+            guestEntity.setGuestNum(guestNum);
 
             session.getTransaction().begin();
             session.saveOrUpdate(guestEntity);

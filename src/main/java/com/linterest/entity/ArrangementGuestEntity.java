@@ -15,6 +15,7 @@ public class ArrangementGuestEntity {
     private boolean isCoreHost;
     private int id;
     private boolean deleted;
+    private int guestNum;
 
     @Basic
     @Column(name = "arrangement_id")
@@ -87,5 +88,15 @@ public class ArrangementGuestEntity {
 
     public void setDeleted(boolean deleted) {
         this.deleted = deleted;
+    }
+
+    @Basic
+    @Column(name = "guest_num", nullable = false, insertable = true, updatable = true)
+    public int getGuestNum() {
+        return guestNum;
+    }
+
+    public void setGuestNum(int guestNum) {
+        this.guestNum = guestNum;
     }
 }
