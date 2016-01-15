@@ -28,6 +28,7 @@ public class UserEntity {
     private String session;
     private Integer personality;
     private String displayName;
+    private String profileImageUrl;
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -203,5 +204,15 @@ public class UserEntity {
 
     public void setDisplayName(String displayName) {
         this.displayName = displayName;
+    }
+
+    @Basic
+    @Column(name = "profile_image_url", nullable = true, insertable = true, updatable = true, length = 100)
+    public String getProfileImageUrl() {
+        return profileImageUrl;
+    }
+
+    public void setProfileImageUrl(String profileImageUrl) {
+        this.profileImageUrl = profileImageUrl;
     }
 }

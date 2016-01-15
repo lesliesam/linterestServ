@@ -191,6 +191,20 @@ public class UserServicesImpl implements UserServices {
     public UserEntity updatePhoneNumber(UserEntity user, String phoneNumber) {
         Session session = HibernateUtil.getSessionFactory().openSession();
         user.setPhoneNum(phoneNumber);
+
+        session.beginTransaction();
+        session.update(user);
+        session.getTransaction().commit();
+
+        session.close();
+        return user;
+    }
+
+    @Override
+    public UserEntity updateProfileImage(UserEntity user, String imageURL) {
+        Session session = HibernateUtil.getSessionFactory().openSession();
+        user.setProfileImageUrl(imageURL);
+
         session.beginTransaction();
         session.update(user);
         session.getTransaction().commit();

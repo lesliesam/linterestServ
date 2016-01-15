@@ -1,26 +1,32 @@
 package com.linterest.module;
 
+import com.aliyun.oss.ClientException;
+import com.aliyun.oss.OSSException;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.linterest.Constants;
 import com.linterest.GuiceInstance;
+import com.linterest.dto.ImageDto;
 import com.linterest.dto.UserHobbyDto;
 import com.linterest.entity.HobbyEntity;
 import com.linterest.entity.PersonalityEntity;
 import com.linterest.entity.UserEntity;
 import com.linterest.entity.UserHobbyEntity;
-import com.linterest.error.ServerErrorAuthFailed;
-import com.linterest.error.ServerErrorParamEmpty;
-import com.linterest.error.ServerErrorParamInvalid;
-import com.linterest.error.ServerErrorUserNotFound;
+import com.linterest.error.*;
 import com.linterest.services.HobbyServices;
 import com.linterest.services.PersonalityServices;
 import com.linterest.services.UserServices;
+import com.linterest.utils.AliyunOSSUtils;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import org.apache.commons.codec.digest.DigestUtils;
+import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
+import org.glassfish.jersey.media.multipart.FormDataParam;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -169,6 +175,47 @@ public class UserProfileModule {
         services.updateUserDisplayName(user, displayName);
 
         return Response.status(Response.Status.OK).entity(gson.toJson(user)).build();
+    }
+
+    @POST
+    @Path("/uploadProfileImage")
+    @ApiOperation(value = "上传图片", notes = "检查后缀名是否为jpg或png")
+    @Consumes(MediaType.MULTIPART_FORM_DATA)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response uploadProfileImage(@HeaderParam("authSession") String authSession,
+                                @FormDataParam("file") InputStream uploadedInputStream,
+                                @FormDataParam("file") FormDataContentDisposition fileDetail) {
+        Gson gson = new GsonBuilder().create();
+
+        if (authSession == null || authSession.length() == 0) {
+            return Response.status(Response.Status.FORBIDDEN).entity(gson.toJson(new ServerErrorParamEmpty("authSession"))).build();
+        }
+
+        UserServices services = GuiceInstance.getGuiceInjector().getInstance(UserServices.class);
+        List<UserEntity> list = services.getUserWithAuthSession(authSession);
+        if (list.size() == 0) {
+            return Response.status(Response.Status.BAD_REQUEST).entity(gson.toJson(new ServerErrorAuthFailed())).build();
+        }
+
+        String fileName = fileDetail.getFileName();
+        String[] fileNameSplits = fileName.split("[.]");
+        String appendix = fileNameSplits[fileNameSplits.length - 1];
+        if (fileNameSplits.length < 2 || !appendix.equalsIgnoreCase("jpg") && !appendix.equalsIgnoreCase("png")) {
+            return Response.status(Response.Status.BAD_REQUEST).entity(gson.toJson(new ServerErrorWithString("You can only upload images."))).build();
+        }
+
+        String storedFileName = DigestUtils.md5Hex(String.valueOf(System.currentTimeMillis())) + "_" + fileName;
+
+        try {
+            AliyunOSSUtils.uploadFile(storedFileName, uploadedInputStream);
+        } catch (OSSException | ClientException exception) {
+            return Response.status(Response.Status.BAD_REQUEST).entity(gson.toJson(exception)).build();
+        }
+
+        UserEntity user = list.get(0);
+        services.updateProfileImage(user, Constants.CDN_URL + storedFileName);
+
+        return Response.ok().entity(gson.toJson(user)).build();
     }
 
     private Response updateUserHobby(String authSession, String hobbies, boolean deleted) {
