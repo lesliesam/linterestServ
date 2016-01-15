@@ -21,4 +21,5 @@ public interface UserServices {
     UserEntity updateUserDisplayName(UserEntity user, String displayName);
     UserEntity updatePhoneNumber(UserEntity user, String phoneNumber);
     List<ArrangementGuestEntity> getAllComments(UserEntity user);
+    UserEntity updateProfileImage(UserEntity user, String imageURL);
 }

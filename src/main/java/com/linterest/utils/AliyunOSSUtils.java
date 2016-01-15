@@ -2,9 +2,11 @@ package com.linterest.utils;
 
 import com.aliyun.oss.OSSClient;
 import com.aliyun.oss.model.Bucket;
+import com.aliyun.oss.model.PutObjectResult;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Iterator;
 
@@ -13,11 +15,13 @@ import java.util.Iterator;
  */
 public class AliyunOSSUtils {
 
+    private static final String endpoint = "http://oss.aliyuncs.com";
+    private static final String accessKeyId = "w8yS2NoNTJwd6Rgt";
+    private static final String accessKeySecret = "bV7PLOBptPuHg8RozpBV7SkO1R1yWv";
+    private static final String bucketName = "linterest-image";
+
     public static void main(String[] args) {
-        String endpoint = "http://oss.aliyuncs.com";
-        String accessKeyId = "w8yS2NoNTJwd6Rgt";
-        String accessKeySecret = "bV7PLOBptPuHg8RozpBV7SkO1R1yWv";
-        String bucketName = "linterest-image";
+
         HashMap<String, String> files = new HashMap<>();
 
         files.put("1.pic.jpg", "/Users/trdehero/Downloads/1.pic.jpg");
@@ -31,10 +35,10 @@ public class AliyunOSSUtils {
         files.put("9.pic.jpg", "/Users/trdehero/Downloads/9.pic.jpg");
         files.put("10.pic.jpg", "/Users/trdehero/Downloads/10.pic.jpg");
 
-// Create a new OSSClient instance
+        // Create a new OSSClient instance
         OSSClient client = new OSSClient(endpoint, accessKeyId, accessKeySecret);
 
-// Do some operations with the instance...
+        // Do some operations with the instance...
         for (Bucket bkt : client.listBuckets()) {
             System.out.println(" - " + bkt.getName());
         }
@@ -48,7 +52,19 @@ public class AliyunOSSUtils {
         }
 
 
-// Shutdown the instance to release any allocated resources
+        // Shutdown the instance to release any allocated resources
         client.shutdown();
+    }
+
+    public static String uploadFile(String fileName, InputStream fileInput) {
+        // Create a new OSSClient instance
+        OSSClient client = new OSSClient(endpoint, accessKeyId, accessKeySecret);
+
+        PutObjectResult result = client.putObject(bucketName, fileName, fileInput);
+
+        // Shutdown the instance to release any allocated resources
+        client.shutdown();
+
+        return result.getETag();
     }
 }
