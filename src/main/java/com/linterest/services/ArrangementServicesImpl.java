@@ -171,6 +171,7 @@ public class ArrangementServicesImpl implements ArrangementServices {
             guestEntity.setGuestId(user.getId());
             guestEntity.setIsCoreHost(isCoHost);
             guestEntity.setGuestNum(guestNum);
+            guestEntity.setUpdateTimes(0);
 
             session.getTransaction().begin();
             session.saveOrUpdate(guestEntity);
@@ -193,5 +194,51 @@ public class ArrangementServicesImpl implements ArrangementServices {
 
         session.close();
         return guestEntityList;
+    }
+
+    @Override
+    public int getPostCommentTimes(UserEntity user, ArrangementEntity arrangementEntity) {
+        Session session = HibernateUtil.getSessionFactory().openSession();
+
+        String queryStr = "from ArrangementGuestEntity where guestId = :guestId and arrangementId = :arrangementId and orderStatus != :orderStatus";
+        List<ArrangementGuestEntity> guestEntityList = session.createQuery(queryStr).
+                setInteger("guestId", user.getId()).
+                setInteger("arrangementId", arrangementEntity.getId()).
+                setInteger("orderStatus", Constants.PAYMENT_CANCELLED).
+                list();
+
+        if (guestEntityList.size() == 0) {
+            return -1;
+        }
+
+        ArrangementGuestEntity guestEntity = guestEntityList.get(0);
+        return guestEntity.getUpdateTimes();
+    }
+
+    @Override
+    public ArrangementGuestEntity postComments(UserEntity user, ArrangementEntity arrangementEntity, String comments, int stars) {
+        Session session = HibernateUtil.getSessionFactory().openSession();
+
+        String queryStr = "from ArrangementGuestEntity where guestId = :guestId and arrangementId = :arrangementId and orderStatus != :orderStatus";
+        List<ArrangementGuestEntity> guestEntityList = session.createQuery(queryStr).
+                setInteger("guestId", user.getId()).
+                setInteger("arrangementId", arrangementEntity.getId()).
+                setInteger("orderStatus", Constants.PAYMENT_CANCELLED).
+                list();
+
+        if (guestEntityList.size() == 0) {
+            return null;
+        }
+
+        ArrangementGuestEntity guestEntity = guestEntityList.get(0);
+        guestEntity.setComment(comments);
+        guestEntity.setCommentStar(stars);
+        guestEntity.setUpdateTimes(guestEntity.getUpdateTimes() + 1);
+
+        session.getTransaction().begin();
+        session.update(guestEntity);
+        session.getTransaction().commit();
+
+        return guestEntity;
     }
 }

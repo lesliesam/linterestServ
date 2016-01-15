@@ -16,6 +16,9 @@ public class ArrangementGuestEntity {
     private int id;
     private int guestNum;
     private int orderStatus;
+    private String comment;
+    private Integer commentStar;
+    private Integer updateTimes;
 
     @Basic
     @Column(name = "arrangement_id")
@@ -97,5 +100,35 @@ public class ArrangementGuestEntity {
 
     public void setOrderStatus(int orderStatus) {
         this.orderStatus = orderStatus;
+    }
+
+    @Basic
+    @Column(name = "comment", nullable = true, insertable = true, updatable = true, length = 1000)
+    public String getComment() {
+        return comment;
+    }
+
+    public void setComment(String comment) {
+        this.comment = comment;
+    }
+
+    @Basic
+    @Column(name = "commentStar", nullable = true, insertable = true, updatable = true)
+    public Integer getCommentStar() {
+        return commentStar;
+    }
+
+    public void setCommentStar(Integer commentStar) {
+        this.commentStar = commentStar;
+    }
+
+    @Basic
+    @Column(name = "update_times", nullable = true, insertable = true, updatable = true)
+    public Integer getUpdateTimes() {
+        return updateTimes;
+    }
+
+    public void setUpdateTimes(Integer updateTimes) {
+        this.updateTimes = updateTimes;
     }
 }

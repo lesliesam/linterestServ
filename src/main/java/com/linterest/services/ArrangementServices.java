@@ -16,4 +16,6 @@ public interface ArrangementServices {
     UserArrangementLikeEntity userLikeArrangement(UserEntity user, ArrangementEntity arrangementEntity, boolean like);
     ArrangementGuestEntity joinOrQuitArrangement(UserEntity user, ArrangementEntity arrangementEntity, int guestNum, boolean isCoHost, boolean isJoin);
     List<ArrangementGuestEntity> getAllGuestInArrangement(ArrangementEntity arrangementEntity);
+    int getPostCommentTimes(UserEntity user, ArrangementEntity arrangementEntity);
+    ArrangementGuestEntity postComments(UserEntity user, ArrangementEntity arrangementEntity, String comments, int stars);
 }

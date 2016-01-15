@@ -235,6 +235,61 @@ public class ArrangementModule {
         return Response.ok().entity(gson.toJson(guestEntityList)).build();
     }
 
+    @POST
+    @Path("/postComments")
+    @ApiOperation(value = "评价用餐")
+    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response postComments(@HeaderParam("authSession") String authSession,
+                                 @FormParam("arrangementId") String arrangementId,
+                                 @FormParam("comments") String comments,
+                                 @FormParam("stars") int stars) {
+        Gson gson = new GsonBuilder().create();
+
+        if (authSession == null || authSession.length() == 0) {
+            return Response.status(Response.Status.FORBIDDEN).entity(gson.toJson(new ServerErrorParamEmpty("authSession"))).build();
+        }
+
+        if (arrangementId == null || arrangementId.length() == 0) {
+            return Response.status(Response.Status.BAD_REQUEST).entity(gson.toJson(new ServerErrorParamEmpty("arrangementId"))).build();
+        }
+
+        if (stars <= 0 || stars > 5) {
+            return Response.status(Response.Status.BAD_REQUEST).entity(gson.toJson(new ServerErrorParamInvalid("stars", "大于0 小于5"))).build();
+        }
+
+        if (comments == null) {
+            comments = "";
+        }
+
+        UserServices userServices = GuiceInstance.getGuiceInjector().getInstance(UserServices.class);
+        List<UserEntity> userList = userServices.getUserWithAuthSession(authSession);
+        if (userList.size() == 0) {
+            return Response.status(Response.Status.BAD_REQUEST).entity(gson.toJson(new ServerErrorAuthFailed())).build();
+        }
+
+        ArrangementServices arrangementServices = GuiceInstance.getGuiceInjector().getInstance(ArrangementServices.class);
+        List<ArrangementEntity> arrangementList = arrangementServices.getById(arrangementId);
+        if (arrangementList.size() == 0) {
+            return Response.status(Response.Status.BAD_REQUEST).entity(gson.toJson(new ServerErrorParamInvalid("arrangementId","2"))).build();
+        }
+
+        UserEntity user = userList.get(0);
+        ArrangementEntity arrangement = arrangementList.get(0);
+
+        //TODO check the arrangement status, only closed arrangement allowed to have comments.
+
+        int commentUpdateTimes = arrangementServices.getPostCommentTimes(user, arrangement);
+        if (commentUpdateTimes == -1) {
+            return Response.status(Response.Status.BAD_REQUEST).entity(gson.toJson(new ServerErrorWithString("You are not in the arrangement."))).build();
+        } else if (commentUpdateTimes >= 2) {
+            return Response.status(Response.Status.BAD_REQUEST).entity(gson.toJson(new ServerErrorWithString("You are update your comments only once."))).build();
+        }
+
+        ArrangementGuestEntity guestEntity = arrangementServices.postComments(user, arrangement, comments, stars);
+        return Response.ok().entity(gson.toJson(guestEntity)).build();
+    }
+
     private Response updateUserLikeArrangement(String authSession, String arrangementId, boolean like) {
         Gson gson = new GsonBuilder().create();
 

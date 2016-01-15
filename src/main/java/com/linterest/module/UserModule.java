@@ -135,4 +135,32 @@ public class UserModule {
 
         return Response.ok().entity(gson.toJson(userPublicInfo)).build();
     }
+
+    @GET
+    @Path("/getComments/{userId}")
+    @ApiOperation(value = "获取用户用餐反馈", notes = "按星数优先排序")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getComments(@HeaderParam("authSession") String authSession, @PathParam("userId") int userId) {
+        Gson gson = new GsonBuilder().create();
+
+        if (authSession == null || authSession.length() == 0) {
+            return Response.status(Response.Status.FORBIDDEN).entity(gson.toJson(new ServerErrorParamEmpty("authSession"))).build();
+        }
+
+        UserServices services = GuiceInstance.getGuiceInjector().getInstance(UserServices.class);
+        List<UserEntity> list = services.getUserWithAuthSession(authSession);
+        if (list.size() == 0) {
+            return Response.status(Response.Status.BAD_REQUEST).entity(gson.toJson(new ServerErrorAuthFailed())).build();
+        }
+
+        list = services.getUser(userId);
+        if (list.size() == 0) {
+            return Response.status(Response.Status.BAD_REQUEST).entity(gson.toJson(new ServerErrorUserNotFound())).build();
+        }
+
+        UserEntity user = list.get(0);
+        List<ArrangementGuestEntity> guestEntityList = services.getAllComments(user);
+
+        return Response.ok().entity(gson.toJson(guestEntityList)).build();
+    }
 }

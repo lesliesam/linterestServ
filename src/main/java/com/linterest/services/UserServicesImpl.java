@@ -199,6 +199,21 @@ public class UserServicesImpl implements UserServices {
         return user;
     }
 
+    @Override
+    public List<ArrangementGuestEntity> getAllComments(UserEntity user) {
+        Session session = HibernateUtil.getSessionFactory().openSession();
+
+        String queryStr = "select age from com.linterest.entity.ArrangementGuestEntity as age " +
+                ", com.linterest.entity.ArrangementEntity as ae " +
+                "where age.arrangementId = ae.id and ae.host = :user " +
+                "order by age.commentStar desc";
+        List<ArrangementGuestEntity> userHobbies = session.createQuery(queryStr).
+                setEntity("user", user)
+                .list();
+
+        return userHobbies;
+    }
+
     private String generateUserSessionStr(String userName, String password) {
         String sessionBeforeCrypt = userName + password + System.currentTimeMillis();
         return DigestUtils.md5Hex(sessionBeforeCrypt);
